@@ -42,26 +42,6 @@ function VslPage() {
         } as React.CSSProperties
       }
     >
-      {/* Trust bar */}
-      <div className="bg-[#08202e] text-white/80">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-6 py-2 text-xs">
-          <div className="flex items-center gap-2">
-            <Lock className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Secure connection · SSL 256-bit encryption</span>
-          </div>
-          <div className="hidden items-center gap-4 sm:flex">
-            <span className="flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              GDPR / CCPA compliant
-            </span>
-            <span className="flex items-center gap-1">
-              <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
-              Verified provider
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Header */}
       <header className="bg-[var(--brand)] text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
