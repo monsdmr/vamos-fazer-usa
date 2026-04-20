@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   Lock,
   BadgeCheck,
@@ -11,6 +12,9 @@ import {
   User,
   MapPin,
   FileCheck2,
+  Check,
+  Play,
+  Download,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -36,8 +40,10 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
     { n: 2, label: "Verify" },
     { n: 3, label: "Result" },
   ];
+  // progress line: 0% (step 1), 50% (step 2), 100% (step 3)
+  const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
-    <div className="border-b border-border pb-6">
+    <div className="pb-6">
       <div className="flex items-center justify-between gap-2">
         {steps.map((s) => {
           const active = current === s.n;
@@ -46,18 +52,22 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
             <div key={s.n} className="flex flex-1 flex-col items-center">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
-                  active
-                    ? "border-[var(--brand)] text-[var(--brand)]"
-                    : done
-                      ? "border-[var(--brand)] bg-[var(--brand)] text-white"
+                  done
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                    : active
+                      ? "border-[var(--brand)] text-[var(--brand)]"
                       : "border-muted-foreground/30 text-muted-foreground"
                 }`}
               >
-                {s.n}
+                {done ? <Check className="h-5 w-5" /> : s.n}
               </div>
               <span
                 className={`mt-2 text-xs font-semibold ${
-                  active ? "text-[var(--brand)]" : "text-muted-foreground"
+                  done
+                    ? "text-emerald-600"
+                    : active
+                      ? "text-[var(--brand)]"
+                      : "text-muted-foreground"
                 }`}
               >
                 {s.label}
@@ -66,15 +76,56 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
           );
         })}
       </div>
+      {/* progress bar */}
+      <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full bg-emerald-500 transition-all duration-700 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 }
 
+const LOADING_MESSAGES = [
+  "Initializing secure session…",
+  "Connecting to verification database…",
+  "Cross-checking your information…",
+  "Almost done…",
+];
+
+function generateRecordId() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let id = "";
+  for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return `FR-${id}`;
+}
+
 function Index() {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState("");
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
+  const [loadingIdx, setLoadingIdx] = useState(0);
+  const [recordId, setRecordId] = useState("");
+
+  // Cycle loading messages and advance to step 3
+  useEffect(() => {
+    if (step !== 2) return;
+    setLoadingIdx(0);
+    const interval = setInterval(() => {
+      setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
+    }, 1200);
+    const timeout = setTimeout(() => {
+      setRecordId(generateRecordId());
+      setStep(3);
+    }, 5000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [step]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +134,14 @@ function Index() {
       return;
     }
     setError("");
+    setStep(2);
   };
+
+  const resetFlow = () => {
+    setStep(1);
+    setError("");
+  };
+
 
   return (
     <div
@@ -179,87 +237,148 @@ function Index() {
       {/* Card */}
       <main className="mx-auto -mt-6 max-w-3xl px-4 pb-12">
         <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
-          <Stepper current={1} />
+          <Stepper current={step} />
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          {step === 1 && (
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-foreground">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="As shown on your official document"
+                    className="w-full rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-foreground">
+                  State
+                </label>
+                <div className="relative">
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={stateVal}
+                    onChange={(e) => setStateVal(e.target.value)}
+                    className="w-full appearance-none rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                  >
+                    <option value="">Select your state</option>
+                    {US_STATES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <label className="flex items-start gap-2 rounded-md bg-muted/40 p-3 text-sm text-foreground">
                 <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="As shown on your official document"
-                  className="w-full rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                  type="checkbox"
+                  checked={authorized}
+                  onChange={(e) => setAuthorized(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-input accent-[var(--brand)]"
                 />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-                State
+                <span>
+                  I authorize the verification of my information in accordance
+                  with the{" "}
+                  <a href="#" className="font-semibold text-[var(--brand)] underline">
+                    Privacy Policy
+                  </a>
+                  .
+                </span>
               </label>
-              <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <select
-                  value={stateVal}
-                  onChange={(e) => setStateVal(e.target.value)}
-                  className="w-full appearance-none rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
-                >
-                  <option value="">Select your state</option>
-                  {US_STATES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90"
+              >
+                Verify Now <ArrowRight className="h-4 w-4" />
+              </button>
+
+              {error && (
+                <p className="text-center text-sm text-destructive">{error}</p>
+              )}
+
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Lock className="h-3 w-3" /> 256-bit encrypted
+                </span>
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" /> No credit card required
+                </span>
+                <span className="flex items-center gap-1">
+                  <FileCheck2 className="h-3 w-3" /> Free check
+                </span>
               </div>
+            </form>
+          )}
+
+          {step === 2 && (
+            <div className="mt-10 flex flex-col items-center text-center">
+              <div className="relative h-20 w-20">
+                <div className="absolute inset-0 rounded-full border-4 border-muted" />
+                <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-[var(--brand)]" />
+              </div>
+              <h2 className="mt-6 text-2xl font-bold text-foreground">
+                Connecting…
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Please wait while we verify your information…
+              </p>
+              <p className="mt-4 text-sm font-medium text-foreground/70">
+                {LOADING_MESSAGES[loadingIdx]}
+              </p>
+              <button
+                onClick={resetFlow}
+                className="mt-8 inline-flex items-center gap-2 rounded-md bg-muted px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted/70"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </button>
             </div>
+          )}
 
-            <label className="flex items-start gap-2 rounded-md bg-muted/40 p-3 text-sm text-foreground">
-              <input
-                type="checkbox"
-                checked={authorized}
-                onChange={(e) => setAuthorized(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-input accent-[var(--brand)]"
-              />
-              <span>
-                I authorize the verification of my information in accordance
-                with the{" "}
-                <a href="#" className="font-semibold text-[var(--brand)] underline">
-                  Privacy Policy
-                </a>
-                .
-              </span>
-            </label>
+          {step === 3 && (
+            <div className="mt-8 flex flex-col items-center text-center">
+              <h2 className="text-2xl font-bold leading-tight text-foreground md:text-3xl">
+                Congratulations{name ? `, ${name}` : ""} — there are{" "}
+                <span className="text-emerald-600">$2,350.00</span> available in
+                your name.
+              </h2>
+              {stateVal && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  State selected: {stateVal}.
+                </p>
+              )}
 
-            <button
-              type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow transition-opacity hover:opacity-90"
-            >
-              Verify Now <ArrowRight className="h-4 w-4" />
-            </button>
+              <div className="my-8 text-5xl font-extrabold tracking-tight text-emerald-600 md:text-6xl">
+                $2,350.00
+              </div>
+              <p className="text-xs font-medium text-muted-foreground">
+                Record #: {recordId}
+              </p>
 
-            {error && (
-              <p className="text-center text-sm text-destructive">{error}</p>
-            )}
+              <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90">
+                <Play className="h-4 w-4" /> Watch Official Video: How to Receive
+              </button>
+              <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70">
+                <Download className="h-4 w-4" /> Download Instructions (PDF) — Watch video first
+              </button>
 
-            {/* Microcopy under CTA */}
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Lock className="h-3 w-3" /> 256-bit encrypted
-              </span>
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3" /> No credit card required
-              </span>
-              <span className="flex items-center gap-1">
-                <FileCheck2 className="h-3 w-3" /> Free check
-              </span>
+              <button
+                onClick={resetFlow}
+                className="mt-6 text-xs font-semibold text-muted-foreground underline hover:text-foreground"
+              >
+                Start a new verification
+              </button>
             </div>
-          </form>
+          )}
         </div>
 
         {/* Testimonial strip */}
