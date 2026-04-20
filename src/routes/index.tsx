@@ -114,11 +114,11 @@ function Index() {
     setLoadingIdx(0);
     const interval = setInterval(() => {
       setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
-    }, 1200);
+    }, 450);
     const timeout = setTimeout(() => {
       setRecordId(generateRecordId());
       setStep(3);
-    }, 5000);
+    }, 1800);
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
