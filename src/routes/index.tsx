@@ -205,6 +205,7 @@ function Index() {
           <p className="mt-2 max-w-2xl text-sm text-white/70">
             Enter your details below to securely check eligibility. Your data is
             encrypted and never shared with third parties.
+          </p>
         </div>
       </header>
 
