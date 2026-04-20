@@ -214,6 +214,11 @@ function Index() {
 
           {step === 1 && (
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              {error && (
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">
                   Full Name
