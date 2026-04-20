@@ -6,8 +6,6 @@ import {
   ShieldCheck,
   Lock,
   BadgeCheck,
-  Clock,
-  Users,
   Star,
   User,
   MapPin,
