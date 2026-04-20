@@ -205,7 +205,31 @@ function Index() {
           <p className="mt-2 max-w-2xl text-sm text-white/70">
             Enter your details below to securely check eligibility. Your data is
             encrypted and never shared with third parties.
-          </p>
+        </div>
+      </header>
+
+      {/* Card */}
+      <main className="mx-auto -mt-6 max-w-3xl px-4 pb-12">
+        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
+          <Stepper current={step} />
+
+          {step === 1 && (
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-foreground">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="As shown on your official document"
+                    className="w-full rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">
