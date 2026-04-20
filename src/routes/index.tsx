@@ -364,9 +364,12 @@ function Index() {
                 Record #: {recordId}
               </p>
 
-              <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90">
+              <Link
+                to="/vsl"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90"
+              >
                 <Play className="h-4 w-4" /> Watch Official Video: How to Receive
-              </button>
+              </Link>
               <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70">
                 <Download className="h-4 w-4" /> Download Instructions (PDF) — Watch video first
               </button>
