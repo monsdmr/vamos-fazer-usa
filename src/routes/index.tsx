@@ -40,8 +40,10 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
     { n: 2, label: "Verify" },
     { n: 3, label: "Result" },
   ];
+  // progress line: 0% (step 1), 50% (step 2), 100% (step 3)
+  const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
-    <div className="border-b border-border pb-6">
+    <div className="pb-6">
       <div className="flex items-center justify-between gap-2">
         {steps.map((s) => {
           const active = current === s.n;
@@ -50,18 +52,22 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
             <div key={s.n} className="flex flex-1 flex-col items-center">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
-                  active
-                    ? "border-[var(--brand)] text-[var(--brand)]"
-                    : done
-                      ? "border-[var(--brand)] bg-[var(--brand)] text-white"
+                  done
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                    : active
+                      ? "border-[var(--brand)] text-[var(--brand)]"
                       : "border-muted-foreground/30 text-muted-foreground"
                 }`}
               >
-                {s.n}
+                {done ? <Check className="h-5 w-5" /> : s.n}
               </div>
               <span
                 className={`mt-2 text-xs font-semibold ${
-                  active ? "text-[var(--brand)]" : "text-muted-foreground"
+                  done
+                    ? "text-emerald-600"
+                    : active
+                      ? "text-[var(--brand)]"
+                      : "text-muted-foreground"
                 }`}
               >
                 {s.label}
@@ -69,6 +75,13 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
             </div>
           );
         })}
+      </div>
+      {/* progress bar */}
+      <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full bg-emerald-500 transition-all duration-700 ease-out"
+          style={{ width: `${progress}%` }}
+        />
       </div>
     </div>
   );
