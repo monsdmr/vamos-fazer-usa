@@ -207,56 +207,6 @@ function Index() {
             encrypted and never shared with third parties.
           </p>
 
-          {/* Trust stats */}
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs">
-              <Users className="h-4 w-4 text-emerald-400" />
-              <div>
-                <div className="font-semibold text-white">+120,000</div>
-                <div className="text-white/60">verifications completed</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs">
-              <Clock className="h-4 w-4 text-emerald-400" />
-              <div>
-                <div className="font-semibold text-white">~10 seconds</div>
-                <div className="text-white/60">average response time</div>
-              </div>
-            </div>
-            <div className="col-span-2 flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs sm:col-span-1">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              <div>
-                <div className="font-semibold text-white">4.8 / 5</div>
-                <div className="text-white/60">based on 8,400+ reviews</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Card */}
-      <main className="mx-auto -mt-6 max-w-3xl px-4 pb-12">
-        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
-          <Stepper current={step} />
-
-          {step === 1 && (
-            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-foreground">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="As shown on your official document"
-                    className="w-full rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">
                   State
