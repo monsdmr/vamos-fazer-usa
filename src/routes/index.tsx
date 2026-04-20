@@ -87,11 +87,45 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
   );
 }
 
+const LOADING_MESSAGES = [
+  "Initializing secure session…",
+  "Connecting to verification database…",
+  "Cross-checking your information…",
+  "Almost done…",
+];
+
+function generateRecordId() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let id = "";
+  for (let i = 0; i < 10; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return `FR-${id}`;
+}
+
 function Index() {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState("");
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
+  const [loadingIdx, setLoadingIdx] = useState(0);
+  const [recordId, setRecordId] = useState("");
+
+  // Cycle loading messages and advance to step 3
+  useEffect(() => {
+    if (step !== 2) return;
+    setLoadingIdx(0);
+    const interval = setInterval(() => {
+      setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
+    }, 1200);
+    const timeout = setTimeout(() => {
+      setRecordId(generateRecordId());
+      setStep(3);
+    }, 5000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [step]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +134,14 @@ function Index() {
       return;
     }
     setError("");
+    setStep(2);
   };
+
+  const resetFlow = () => {
+    setStep(1);
+    setError("");
+  };
+
 
   return (
     <div
