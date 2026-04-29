@@ -179,7 +179,7 @@ function Upsell3Page() {
               animation: "upsell3Pulse 1.6s ease-in-out infinite",
             }}
           >
-            I WANT ACCESS TO THE HIDDEN SYSTEM
+            I WON'T LET IT ESCAPE
           </a>
           <a
             href={NO_URL}

@@ -179,7 +179,7 @@ function Upsell2Page() {
               animation: "upsell2Pulse 1.6s ease-in-out infinite",
             }}
           >
-            I WANT ACCESS!
+            I WON'T LET IT ESCAPE
           </a>
           <a
             href={NO_URL}
