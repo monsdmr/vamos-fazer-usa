@@ -155,6 +155,11 @@ function Index() {
   };
 
 
+  // While verifying (step 2) on mobile, hide all surrounding chrome
+  // (header, hero, testimonials, footer) and center the loader so the
+  // user stays focused until the VSL.
+  const focusMode = step === 2;
+
   return (
     <div
       className="min-h-screen"
@@ -165,8 +170,8 @@ function Index() {
         } as React.CSSProperties
       }
     >
-      {/* Header */}
-      <header className="bg-[var(--brand)] text-white">
+      {/* Header — hidden on mobile during verify */}
+      <header className={`bg-[var(--brand)] text-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl" aria-hidden>🇺🇸</span>
@@ -202,8 +207,14 @@ function Index() {
       </header>
 
       {/* Card */}
-      <main className="mx-auto -mt-6 max-w-3xl px-4 pb-12">
-        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
+      <main
+        className={`mx-auto max-w-3xl px-4 pb-12 ${
+          focusMode
+            ? "flex min-h-screen items-center justify-center md:-mt-6 md:block md:min-h-0"
+            : "-mt-6"
+        }`}
+      >
+        <div className="w-full rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
           <Stepper current={step} />
 
           {step === 1 && (
@@ -357,8 +368,8 @@ function Index() {
           )}
         </div>
 
-        {/* Testimonial strip */}
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
+        {/* Testimonial strip — hidden on mobile during verify */}
+        <div className={`mt-6 grid gap-3 md:grid-cols-3 ${focusMode ? "hidden md:grid" : ""}`}>
           {[
             { name: "Sarah M.", state: "TX", text: "Quick and easy process. Got my response in seconds." },
             { name: "James R.", state: "FL", text: "Clear instructions and felt secure throughout." },
@@ -382,8 +393,8 @@ function Index() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-white">
+      {/* Footer — hidden on mobile during verify */}
+      <footer className={`border-t border-border bg-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
