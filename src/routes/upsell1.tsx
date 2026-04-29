@@ -118,11 +118,11 @@ function UpsellPage() {
       {/* Title */}
       <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-          Final Step Before Access
+          Your Order Is Not Complete Yet
         </h1>
-        <p className="mt-3 text-slate-500 text-base sm:text-lg">
-          Please watch the short video below to unlock the next feature.
-        </p>
+        <h2 className="mt-2 text-xl sm:text-3xl font-extrabold tracking-tight">
+          Please Watch This Important Message Below Now
+        </h2>
       </section>
 
       {/* Video */}
