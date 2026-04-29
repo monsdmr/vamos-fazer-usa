@@ -100,86 +100,56 @@ function VslPage() {
 
   // Player script is injected via the route's head.scripts (SSR) for fastest load.
 
-  // Reveal the CTA when the VTurb player reaches the pitch moment.
-  // Strategy (mobile-safe):
-  //   1) Poll continuously for the inner <video>/<audio> (light + shadow DOM)
-  //      and re-attach if the player swaps elements (intro → main video).
-  //   2) Listen to VTurb's global `smartplayer` API events when available.
-  //   3) Hard fallback: a wall-clock timer guarantees the CTA appears even if
-  //      media detection fails (e.g. Shadow DOM lockdown on iOS Safari).
+  // Reveal the CTA when the VTurb player reaches the pitch moment in the video.
+  // We poll for the player element + media (video/audio) and listen to timeupdate.
   useEffect(() => {
     if (ctaUnlocked) return;
 
     let cancelled = false;
-    const attached = new WeakSet<HTMLMediaElement>();
+    let mediaEl: HTMLMediaElement | null = null;
     let pollId: number | null = null;
 
-    const reveal = () => {
-      if (cancelled) return;
-      setCtaUnlocked(true);
-    };
-
-    const onTimeUpdate = (e: Event) => {
-      const m = e.currentTarget as HTMLMediaElement;
-      if (m && m.currentTime >= PITCH_REVEAL_SECONDS) reveal();
+    const onTimeUpdate = () => {
+      if (mediaEl && mediaEl.currentTime >= PITCH_REVEAL_SECONDS) {
+        setCtaUnlocked(true);
+      }
     };
 
     const attach = (el: HTMLMediaElement) => {
-      if (attached.has(el)) return;
-      attached.add(el);
+      mediaEl = el;
       el.addEventListener("timeupdate", onTimeUpdate);
-      // In case user is already past mark (resume / fast-forward)
-      if (el.currentTime >= PITCH_REVEAL_SECONDS) reveal();
+      // In case the user is already past the mark (resume)
+      onTimeUpdate();
     };
 
-    const findMedia = (): HTMLMediaElement[] => {
-      const found: HTMLMediaElement[] = [];
-      const player = document.getElementById("ab-69f140ee2e62e594e34723cd");
-      const roots: ParentNode[] = [];
-      if (player) {
-        roots.push(player);
-        const sr = (player as unknown as { shadowRoot?: ShadowRoot | null })
-          .shadowRoot;
-        if (sr) roots.push(sr);
-      }
-      roots.push(document);
-      for (const r of roots) {
-        const list = r.querySelectorAll?.("video, audio");
-        list?.forEach((el) => found.push(el as HTMLMediaElement));
-      }
-      return found;
-    };
-
-    const tick = () => {
+    const tryFind = () => {
       if (cancelled) return;
-      findMedia().forEach(attach);
+      const player = document.getElementById("ab-69f140ee2e62e594e34723cd");
+      // The smartplayer is a custom element that renders a <video> internally.
+      // It may use shadow DOM, so we check both light and shadow roots.
+      const root: ParentNode | null =
+        (player as unknown as { shadowRoot?: ShadowRoot } | null)?.shadowRoot ??
+        player;
+      const media =
+        (root?.querySelector?.("video, audio") as HTMLMediaElement | null) ??
+        (document.querySelector("video, audio") as HTMLMediaElement | null);
 
-      // Try VTurb's global API if it exposes the player instance
-      const w = window as unknown as {
-        smartplayer?: {
-          instances?: Record<string, { getCurrentTime?: () => number }>;
-        };
-      };
-      const inst = w.smartplayer?.instances?.["ab-69f140ee2e62e594e34723cd"];
-      const t = inst?.getCurrentTime?.();
-      if (typeof t === "number" && t >= PITCH_REVEAL_SECONDS) reveal();
+      if (media) {
+        attach(media);
+        if (pollId !== null) {
+          window.clearInterval(pollId);
+          pollId = null;
+        }
+      }
     };
 
-    pollId = window.setInterval(tick, 500);
-    tick();
-
-    // Hard wall-clock fallback — even if detection fails, the CTA WILL appear.
-    // Uses the same delay (in ms) so behavior matches the intended pitch moment.
-    const fallbackId = window.setTimeout(reveal, PITCH_REVEAL_SECONDS * 1000);
+    pollId = window.setInterval(tryFind, 500);
+    tryFind();
 
     return () => {
       cancelled = true;
       if (pollId !== null) window.clearInterval(pollId);
-      window.clearTimeout(fallbackId);
-      // Remove listeners from any media we attached
-      findMedia().forEach((el) => {
-        if (attached.has(el)) el.removeEventListener("timeupdate", onTimeUpdate);
-      });
+      if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [ctaUnlocked]);
 

@@ -185,11 +185,25 @@ function Upsell2Page() {
       )}
 
       <footer
-        className="mt-auto w-full bg-[#0e2a3a] text-white/70 text-xs"
+        className="mt-auto border-t border-slate-200 bg-white"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="mx-auto max-w-6xl px-4 py-4 text-center">
-          © {new Date().getFullYear()} U.S. Payment Processing. All rights reserved.
+        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500 sm:px-6 sm:py-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <img src="https://flagcdn.com/w40/us.png" alt="US" width={20} height={14} className="rounded-sm" />
+              <span className="font-semibold text-slate-900">Official Check</span>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              <a href="#" className="hover:text-slate-900">Privacy Policy</a>
+            </div>
+          </div>
+          <p className="mt-4 leading-relaxed">
+            This service is informational only and does not guarantee approval
+            of any restitution. All data is processed securely and never shared
+            without your consent. © {new Date().getFullYear()} Official Check.
+            All rights reserved.
+          </p>
         </div>
       </footer>
 
