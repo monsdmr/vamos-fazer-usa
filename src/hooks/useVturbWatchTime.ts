@@ -8,14 +8,23 @@ import { useEffect, useState } from "react";
  *   2) Recursive shadow-DOM scan for the underlying <video>/<audio>
  *   3) currentTime polling as a safety net
  *
- * @param playerElementId The DOM id of the <vturb-smartplayer> element
+ * @param playerElementId The DOM id(s) of the <vturb-smartplayer> element/config
  * @param revealSeconds   Watched seconds required before unlock
  */
-export function useVturbWatchTime(playerElementId: string, revealSeconds: number) {
+export function useVturbWatchTime(playerElementId: string | string[], revealSeconds: number) {
   const [unlocked, setUnlocked] = useState(false);
+  const targetIdsKey = Array.isArray(playerElementId)
+    ? playerElementId.join("|")
+    : playerElementId;
 
   useEffect(() => {
     if (unlocked) return;
+
+    const targetIds = new Set(
+      targetIdsKey
+        .split("|")
+        .flatMap((id) => [id, id.replace(/^vid-/, "")])
+    );
 
     let cancelled = false;
     let mediaEl: HTMLMediaElement | null = null;
@@ -41,10 +50,8 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       ].filter(Boolean);
 
       return (
-        totalPlayers === 1 ||
         ids.length === 0 ||
-        ids.includes(playerElementId) ||
-        ids.includes(playerElementId.replace(/^vid-/, ""))
+        ids.some((id) => targetIds.has(id))
       );
     };
 
@@ -140,7 +147,7 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       intervals.forEach((id) => window.clearInterval(id));
       if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [playerElementId, revealSeconds, unlocked]);
+  }, [targetIdsKey, revealSeconds, unlocked]);
 
   return unlocked;
 }
