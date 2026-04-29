@@ -39,15 +39,25 @@ export const Route = createFileRoute("/vsl")({
 });
 
 function VslPage() {
-  const [playing, setPlaying] = useState(false);
   const [ctaUnlocked, setCtaUnlocked] = useState(false);
 
-  // Reveal the CTA after the configured pitch moment once the user starts the video
+  // Inject the vturb smartplayer script once
   useEffect(() => {
-    if (!playing || ctaUnlocked) return;
+    const SRC =
+      "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
+    if (document.querySelector(`script[src="${SRC}"]`)) return;
+    const s = document.createElement("script");
+    s.src = SRC;
+    s.async = true;
+    document.head.appendChild(s);
+  }, []);
+
+  // Reveal the CTA after the configured pitch moment
+  useEffect(() => {
+    if (ctaUnlocked) return;
     const timer = setTimeout(() => setCtaUnlocked(true), PITCH_REVEAL_SECONDS * 1000);
     return () => clearTimeout(timer);
-  }, [playing, ctaUnlocked]);
+  }, [ctaUnlocked]);
 
   return (
     <div
