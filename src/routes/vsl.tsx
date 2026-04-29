@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Lock,
   ShieldCheck,
@@ -8,6 +8,10 @@ import {
   ArrowDown,
   Volume2,
 } from "lucide-react";
+import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
+
+// Time in seconds (from video start) when the pitch begins and the CTA unlocks
+const PITCH_REVEAL_SECONDS = 600; // 10 minutes — adjust to match your VSL pitch moment
 
 export const Route = createFileRoute("/vsl")({
   head: () => ({
