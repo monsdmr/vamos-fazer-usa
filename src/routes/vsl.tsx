@@ -136,14 +136,14 @@ function VslPage() {
           </div>
         </div>
 
-        {/* Exclusive Offer CTA — unlocks at the pitch moment */}
-        {ctaUnlocked && (
-          <div className="mt-8 flex justify-center animate-in fade-in zoom-in duration-500">
+        {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
+        <div className="mt-10 flex flex-col items-center justify-center">
+          {ctaUnlocked ? (
             <a
               href="https://www.xamericansystem.online/-us"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-transform hover:scale-105 active:scale-95"
+              className="animate-in fade-in zoom-in duration-500 transition-transform hover:scale-105 active:scale-95"
               aria-label="Exclusive offer — only now"
             >
               <img
@@ -152,8 +152,19 @@ function VslPage() {
                 className="h-auto w-full max-w-md drop-shadow-xl"
               />
             </a>
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-6 py-4">
+              <div
+                className="h-14 w-14 animate-spin rounded-full border-[3px] border-[var(--brand)]/20 border-t-[var(--brand)]"
+                role="status"
+                aria-label="Loading"
+              />
+              <p className="text-xl font-bold text-[var(--brand)] md:text-2xl">
+                Required to Follow
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
