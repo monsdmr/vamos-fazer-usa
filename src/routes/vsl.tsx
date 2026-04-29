@@ -5,7 +5,7 @@ import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
 import { FlagUS } from "../components/Flag";
 
 // Time in seconds when the pitch begins and the CTA unlocks
-const PITCH_REVEAL_SECONDS = 21 * 60 + 1; // 21:01 — pitch moment in the VSL
+const PITCH_REVEAL_SECONDS = 20 * 60 + 1; // 20:01 — 1 minute earlier than the pitch moment
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
