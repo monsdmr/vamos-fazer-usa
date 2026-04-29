@@ -34,6 +34,29 @@ export const Route = createFileRoute("/vsl")({
           "Watch the official video to learn how to receive the available amount.",
       },
     ],
+    links: [
+      {
+        rel: "preload",
+        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
+        as: "script",
+      },
+      {
+        rel: "preload",
+        href: "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js",
+        as: "script",
+      },
+      { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
+      { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
+      { rel: "dns-prefetch", href: "https://images.converteai.net" },
+      { rel: "dns-prefetch", href: "https://m3u8.vturb.net" },
+      { rel: "dns-prefetch", href: "https://api.vturb.com.br" },
+    ],
+    scripts: [
+      {
+        children:
+          "!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);",
+      },
+    ],
   }),
   component: VslPage,
 });
