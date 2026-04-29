@@ -35,6 +35,14 @@ export const Route = createFileRoute("/vsl")({
 
 function VslPage() {
   const [playing, setPlaying] = useState(false);
+  const [ctaUnlocked, setCtaUnlocked] = useState(false);
+
+  // Reveal the CTA after the configured pitch moment once the user starts the video
+  useEffect(() => {
+    if (!playing || ctaUnlocked) return;
+    const timer = setTimeout(() => setCtaUnlocked(true), PITCH_REVEAL_SECONDS * 1000);
+    return () => clearTimeout(timer);
+  }, [playing, ctaUnlocked]);
 
   return (
     <div
