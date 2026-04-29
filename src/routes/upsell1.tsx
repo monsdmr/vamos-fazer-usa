@@ -179,25 +179,44 @@ function UpsellPage() {
         </section>
       )}
 
+      {/* Disclaimer footer (matches Strativa reference) */}
       <footer
-        className="mt-auto border-t border-slate-200 bg-white"
+        className="mt-auto border-t border-slate-200 bg-slate-50"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500 sm:px-6 sm:py-8">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2">
-              <img src="https://flagcdn.com/w40/us.png" alt="US" width={20} height={14} className="rounded-sm" />
-              <span className="font-semibold text-slate-900">Official Check</span>
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              <a href="#" className="hover:text-slate-900">Privacy Policy</a>
-            </div>
+        <div className="mx-auto max-w-3xl px-4 py-8 text-center text-[11px] leading-relaxed text-slate-500 sm:text-xs">
+          {/* Functional CTAs mirroring the page's main buttons */}
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <a
+              href={YES_URL}
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white font-bold uppercase tracking-wide text-sm shadow-md transition-transform active:scale-[0.98]"
+            >
+              INCREASE YOUR BENEFITS! NOW ONLY!!!
+            </a>
+            <a href={NO_URL} className="text-slate-400 hover:text-slate-600 underline text-xs">
+              I don't want to increase my benefit.
+            </a>
           </div>
-          <p className="mt-4 leading-relaxed">
-            This service is informational only and does not guarantee approval
-            of any restitution. All data is processed securely and never shared
-            without your consent. © {new Date().getFullYear()} Official Check.
-            All rights reserved.
+
+          <p className="font-semibold text-slate-700">
+            © {new Date().getFullYear()} American System. All rights reserved.
+          </p>
+          <p className="mt-3">
+            Explodely.com is the trusted gateway for equipevgemp.tech. Explodely is a
+            trademark of Explodely LLC, a US Corporation located at 1317 Edgewater
+            Drive Suite #4648, Orlando FL, 32804, United States and used by permission.
+            Explodely's role as a gateway provider does not constitute an endorsement,
+            approval or review of this product(s) or any claim, statement or opinion
+            used in promotion of this product(s). If you aren't completely satisfied
+            with your purchase, or need order support, please contact Explodely here:{" "}
+            <a
+              href="http://explodely.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-slate-700"
+            >
+              http://explodely.com/
+            </a>
           </p>
         </div>
       </footer>
