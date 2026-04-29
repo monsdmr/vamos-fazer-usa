@@ -6,4 +6,21 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+// Pre-render (SSG) the funnel routes at build time so they ship as static HTML.
+// Near-zero TTFB and the page still loads even if the SSR/edge layer is degraded.
+export default defineConfig({
+  tanstackStart: {
+    prerender: {
+      enabled: true,
+      crawlLinks: false,
+      retryCount: 2,
+    },
+    pages: [
+      { path: "/", prerender: { enabled: true } },
+      { path: "/vsl", prerender: { enabled: true } },
+      { path: "/upsell1", prerender: { enabled: true } },
+      { path: "/upsell2", prerender: { enabled: true } },
+      { path: "/upsell3", prerender: { enabled: true } },
+    ],
+  },
+});
