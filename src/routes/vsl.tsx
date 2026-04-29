@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Lock,
   ShieldCheck,
@@ -8,6 +8,10 @@ import {
   ArrowDown,
   Volume2,
 } from "lucide-react";
+import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
+
+// Time in seconds (from video start) when the pitch begins and the CTA unlocks
+const PITCH_REVEAL_SECONDS = 600; // 10 minutes — adjust to match your VSL pitch moment
 
 export const Route = createFileRoute("/vsl")({
   head: () => ({
@@ -31,6 +35,14 @@ export const Route = createFileRoute("/vsl")({
 
 function VslPage() {
   const [playing, setPlaying] = useState(false);
+  const [ctaUnlocked, setCtaUnlocked] = useState(false);
+
+  // Reveal the CTA after the configured pitch moment once the user starts the video
+  useEffect(() => {
+    if (!playing || ctaUnlocked) return;
+    const timer = setTimeout(() => setCtaUnlocked(true), PITCH_REVEAL_SECONDS * 1000);
+    return () => clearTimeout(timer);
+  }, [playing, ctaUnlocked]);
 
   return (
     <div
@@ -123,6 +135,25 @@ function VslPage() {
             )}
           </div>
         </div>
+
+        {/* Exclusive Offer CTA — unlocks at the pitch moment */}
+        {ctaUnlocked && (
+          <div className="mt-8 flex justify-center animate-in fade-in zoom-in duration-500">
+            <a
+              href="https://www.xamericansystem.online/-us"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-transform hover:scale-105 active:scale-95"
+              aria-label="Exclusive offer — only now"
+            >
+              <img
+                src={exclusiveOfferBtn}
+                alt="Exclusive Offer! Only Now"
+                className="h-auto w-full max-w-md drop-shadow-xl"
+              />
+            </a>
+          </div>
+        )}
 
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
