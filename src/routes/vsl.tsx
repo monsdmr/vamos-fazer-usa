@@ -111,44 +111,12 @@ function VslPage() {
           <ArrowDown className="mx-auto mt-3 h-5 w-5 animate-bounce text-muted-foreground" />
         </div>
 
-        {/* Video player */}
-        <div className="mt-6 overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-black/10">
-          <div className="relative aspect-video w-full">
-            {!playing ? (
-              <button
-                type="button"
-                onClick={() => setPlaying(true)}
-                className="group absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-black"
-                aria-label="Play video"
-              >
-                {/* "Tap to play sound" badge */}
-                <div className="mb-6 inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-lg">
-                  <Volume2 className="h-4 w-4" />
-                  Tap to play sound
-                </div>
-                {/* Play button */}
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-600 shadow-2xl transition-transform group-hover:scale-110">
-                  <Play className="ml-1 h-12 w-12 fill-white text-white" />
-                </div>
-                <p className="mt-6 text-sm text-white/70">
-                  Click to start the official video
-                </p>
-              </button>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-black text-white">
-                {/* Replace with real video iframe */}
-                <video
-                  controls
-                  autoPlay
-                  className="h-full w-full"
-                  poster=""
-                >
-                  <source src="" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            )}
-          </div>
+        {/* Video player (vturb smartplayer) */}
+        <div className="mt-6 overflow-hidden rounded-xl shadow-2xl ring-1 ring-black/10">
+          <vturb-smartplayer
+            id="vid-69f140ee2e62e594e34723cd"
+            style={{ display: "block", margin: "0 auto", width: "100%" }}
+          />
         </div>
 
         {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
