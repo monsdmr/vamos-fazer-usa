@@ -174,23 +174,7 @@ function Index() {
     };
   }, [step, router]);
 
-  // Countdown + auto-redirect on step 3
-  useEffect(() => {
-    if (step !== 3) return;
-    setCountdown(3);
-    const t = setInterval(() => {
-      setCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(t);
-          // Auto-navigate to /vsl
-          router.navigate({ to: "/vsl" }).catch(() => {});
-          return 0;
-        }
-        return c - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [step, router]);
+  // No auto-redirect — user must click "Watch Video" button.
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
