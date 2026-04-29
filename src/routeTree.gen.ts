@@ -14,6 +14,9 @@ import { Route as Upsell3RouteImport } from './routes/upsell3'
 import { Route as Upsell2RouteImport } from './routes/upsell2'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DisclaimersRefundRouteImport } from './routes/disclaimers.refund'
+import { Route as DisclaimersFtcRouteImport } from './routes/disclaimers.ftc'
+import { Route as DisclaimersEarningsRouteImport } from './routes/disclaimers.earnings'
 
 const VslRoute = VslRouteImport.update({
   id: '/vsl',
@@ -40,6 +43,21 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DisclaimersRefundRoute = DisclaimersRefundRouteImport.update({
+  id: '/disclaimers/refund',
+  path: '/disclaimers/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimersFtcRoute = DisclaimersFtcRouteImport.update({
+  id: '/disclaimers/ftc',
+  path: '/disclaimers/ftc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimersEarningsRoute = DisclaimersEarningsRouteImport.update({
+  id: '/disclaimers/earnings',
+  path: '/disclaimers/earnings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +65,9 @@ export interface FileRoutesByFullPath {
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
+  '/disclaimers/earnings': typeof DisclaimersEarningsRoute
+  '/disclaimers/ftc': typeof DisclaimersFtcRoute
+  '/disclaimers/refund': typeof DisclaimersRefundRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +75,9 @@ export interface FileRoutesByTo {
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
+  '/disclaimers/earnings': typeof DisclaimersEarningsRoute
+  '/disclaimers/ftc': typeof DisclaimersFtcRoute
+  '/disclaimers/refund': typeof DisclaimersRefundRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +86,41 @@ export interface FileRoutesById {
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
+  '/disclaimers/earnings': typeof DisclaimersEarningsRoute
+  '/disclaimers/ftc': typeof DisclaimersFtcRoute
+  '/disclaimers/refund': typeof DisclaimersRefundRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
+  fullPaths:
+    | '/'
+    | '/upsell1'
+    | '/upsell2'
+    | '/upsell3'
+    | '/vsl'
+    | '/disclaimers/earnings'
+    | '/disclaimers/ftc'
+    | '/disclaimers/refund'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
-  id: '__root__' | '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
+  to:
+    | '/'
+    | '/upsell1'
+    | '/upsell2'
+    | '/upsell3'
+    | '/vsl'
+    | '/disclaimers/earnings'
+    | '/disclaimers/ftc'
+    | '/disclaimers/refund'
+  id:
+    | '__root__'
+    | '/'
+    | '/upsell1'
+    | '/upsell2'
+    | '/upsell3'
+    | '/vsl'
+    | '/disclaimers/earnings'
+    | '/disclaimers/ftc'
+    | '/disclaimers/refund'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +129,9 @@ export interface RootRouteChildren {
   Upsell2Route: typeof Upsell2Route
   Upsell3Route: typeof Upsell3Route
   VslRoute: typeof VslRoute
+  DisclaimersEarningsRoute: typeof DisclaimersEarningsRoute
+  DisclaimersFtcRoute: typeof DisclaimersFtcRoute
+  DisclaimersRefundRoute: typeof DisclaimersRefundRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +171,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/disclaimers/refund': {
+      id: '/disclaimers/refund'
+      path: '/disclaimers/refund'
+      fullPath: '/disclaimers/refund'
+      preLoaderRoute: typeof DisclaimersRefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimers/ftc': {
+      id: '/disclaimers/ftc'
+      path: '/disclaimers/ftc'
+      fullPath: '/disclaimers/ftc'
+      preLoaderRoute: typeof DisclaimersFtcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimers/earnings': {
+      id: '/disclaimers/earnings'
+      path: '/disclaimers/earnings'
+      fullPath: '/disclaimers/earnings'
+      preLoaderRoute: typeof DisclaimersEarningsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +201,9 @@ const rootRouteChildren: RootRouteChildren = {
   Upsell2Route: Upsell2Route,
   Upsell3Route: Upsell3Route,
   VslRoute: VslRoute,
+  DisclaimersEarningsRoute: DisclaimersEarningsRoute,
+  DisclaimersFtcRoute: DisclaimersFtcRoute,
+  DisclaimersRefundRoute: DisclaimersRefundRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

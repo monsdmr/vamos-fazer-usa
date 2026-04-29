@@ -1,9 +1,9 @@
 // Shared disclaimer footer for upsell pages — replicates the Strativa reference
 // (Disclaimers / Policies / Support columns, copyright + Explodely paragraph).
 const SUPPORT_EMAIL = "americansystemusa@gmail.com";
-const EARNINGS_DISCLAIMER = "https://greentracker.online/avisos/earningsDisclaimer.html";
-const FTC_COMPLIANCE = "https://greentracker.online/avisos/FTCcompany.html";
-const EXPLODELY_REFUND = "https://greentracker.online/avisos/explodelyRefunds.html";
+const EARNINGS_DISCLAIMER = "/disclaimers/earnings";
+const FTC_COMPLIANCE = "/disclaimers/ftc";
+const EXPLODELY_REFUND = "/disclaimers/refund";
 const BILLING_SUPPORT = "https://help.explodely.com/support/tickets/new";
 const EXPLODELY_HOME = "http://explodely.com/";
 
