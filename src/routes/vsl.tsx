@@ -271,14 +271,11 @@ function VslPage() {
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6 sm:py-8">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <span className="text-lg" aria-hidden>🇺🇸</span>
+              <FlagUS size={20} />
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
-              <a href="#" className="hover:text-foreground">Terms of Use</a>
-              <a href="#" className="hover:text-foreground">Contact</a>
-              <a href="#" className="hover:text-foreground">FAQ</a>
             </div>
           </div>
           <p className="mt-4 leading-relaxed">
