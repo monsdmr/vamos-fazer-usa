@@ -137,9 +137,9 @@ function VslPage() {
         {/* Video player (vturb smartplayer) */}
         <div className="mt-6 overflow-hidden rounded-xl shadow-2xl ring-1 ring-black/10">
           <vturb-smartplayer
-            id="vid-69f140ee2e62e594e34723cd"
+            id="ab-69f140ee2e62e594e34723cd"
             style={{ display: "block", margin: "0 auto", width: "100%" }}
-          />
+          ></vturb-smartplayer>
         </div>
 
         {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
