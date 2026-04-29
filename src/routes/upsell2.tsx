@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { UpsellFooter } from "@/components/UpsellFooter";
+import { UpsellProgress } from "@/components/UpsellProgress";
 
 // Reveal CTA after the user has actually watched this many seconds of the video
 const CTA_REVEAL_SECONDS = 1 * 60 + 43; // 1:43 (matches reference pitchTime)
@@ -113,6 +114,8 @@ function Upsell2Page() {
           </div>
         </div>
       </header>
+
+      <UpsellProgress currentStep={2} />
 
       {/* Title */}
       <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
