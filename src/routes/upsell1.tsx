@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { UpsellFooter } from "@/components/UpsellFooter";
+import { UpsellProgress } from "@/components/UpsellProgress";
 
 // Reveal CTA after the user has actually watched this many seconds of the video
 const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
