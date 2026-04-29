@@ -125,7 +125,7 @@ function Index() {
   const [error, setError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
-  const [countdown, setCountdown] = useState(3);
+  
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
 
