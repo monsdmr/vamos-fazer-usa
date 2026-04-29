@@ -207,8 +207,14 @@ function Index() {
       </header>
 
       {/* Card */}
-      <main className="mx-auto -mt-6 max-w-3xl px-4 pb-12">
-        <div className="rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
+      <main
+        className={`mx-auto max-w-3xl px-4 pb-12 ${
+          focusMode
+            ? "flex min-h-screen items-center justify-center md:-mt-6 md:block md:min-h-0"
+            : "-mt-6"
+        }`}
+      >
+        <div className="w-full rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
           <Stepper current={step} />
 
           {step === 1 && (
