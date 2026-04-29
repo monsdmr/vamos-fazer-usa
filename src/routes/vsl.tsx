@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
+import { FlagUS } from "../components/Flag";
 
 // Time in seconds when the pitch begins and the CTA unlocks
 const PITCH_REVEAL_SECONDS = 21 * 60 + 1; // 21:01 — pitch moment in the VSL
@@ -19,6 +20,9 @@ declare module "react" {
 }
 
 export const Route = createFileRoute("/vsl")({
+  // SSG: pre-render this route at build time so it serves as static HTML —
+  // near-zero TTFB even if the SSR layer goes down.
+  ssr: true,
   head: () => ({
     meta: [
       { title: "Watch the Official Video — Official Check" },
@@ -39,11 +43,18 @@ export const Route = createFileRoute("/vsl")({
         rel: "preload",
         href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
         as: "script",
+        fetchpriority: "high",
       },
       {
         rel: "preload",
         href: "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js",
         as: "script",
+      },
+      {
+        rel: "preload",
+        href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg",
+        as: "image",
+        fetchpriority: "high",
       },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
@@ -159,7 +170,7 @@ function VslPage() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <span className="text-xl sm:text-2xl" aria-hidden>🇺🇸</span>
+            <FlagUS size={24} />
             <div className="min-w-0 leading-tight">
               <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
               <div className="truncate text-[10px] text-white/70 sm:text-xs">
@@ -167,18 +178,7 @@ function VslPage() {
               </div>
             </div>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm sm:flex">
-            <Link to="/" className="hover:text-white/80">Home</Link>
-            <a href="#" className="hover:text-white/80">About</a>
-            <a href="#" className="hover:text-white/80">Contact</a>
-          </nav>
-          {/* Mobile: only Home link */}
-          <Link
-            to="/"
-            className="rounded-md px-2 py-1 text-xs font-semibold text-white/90 hover:text-white sm:hidden"
-          >
-            Home
-          </Link>
+          {/* Nav removed to keep focus on the video */}
         </div>
 
         {/* Hero */}
@@ -271,14 +271,11 @@ function VslPage() {
         <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6 sm:py-8">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <span className="text-lg" aria-hidden>🇺🇸</span>
+              <FlagUS size={20} />
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
-              <a href="#" className="hover:text-foreground">Terms of Use</a>
-              <a href="#" className="hover:text-foreground">Contact</a>
-              <a href="#" className="hover:text-foreground">FAQ</a>
             </div>
           </div>
           <p className="mt-4 leading-relaxed">

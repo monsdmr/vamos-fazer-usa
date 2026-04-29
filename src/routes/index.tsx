@@ -1,19 +1,35 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   ArrowLeft,
-  ShieldCheck,
   Lock,
-  BadgeCheck,
-  Star,
+  Check,
   User,
   MapPin,
-  FileCheck2,
-  Check,
   Play,
-  Download,
 } from "lucide-react";
+import { FlagUS } from "../components/Flag";
+
+// Lazy-load non-critical icons (only used on step 3 / footer info).
+// Keeps initial JS bundle smaller for first paint.
+const ShieldCheck = lazy(() =>
+  import("lucide-react").then((m) => ({ default: m.ShieldCheck })),
+);
+const BadgeCheck = lazy(() =>
+  import("lucide-react").then((m) => ({ default: m.BadgeCheck })),
+);
+const FileCheck2 = lazy(() =>
+  import("lucide-react").then((m) => ({ default: m.FileCheck2 })),
+);
+const Star = lazy(() =>
+  import("lucide-react").then((m) => ({ default: m.Star })),
+);
+const Download = lazy(() =>
+  import("lucide-react").then((m) => ({ default: m.Download })),
+);
+
+const IconFallback = () => <span className="inline-block h-3 w-3" />;
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -38,7 +54,6 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
     { n: 2, label: "Verify" },
     { n: 3, label: "Result" },
   ];
-  // progress line: 0% (step 1), 50% (step 2), 100% (step 3)
   const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
     <div className="pb-6">
@@ -74,7 +89,6 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
           );
         })}
       </div>
-      {/* progress bar */}
       <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-muted">
         <div
           className="h-full bg-emerald-500 transition-all duration-700 ease-out"
@@ -99,7 +113,11 @@ function generateRecordId() {
   return `FR-${id}`;
 }
 
+const VSL_THUMB =
+  "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg";
+
 function Index() {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState("");
   const [stateVal, setStateVal] = useState("");
@@ -107,14 +125,20 @@ function Index() {
   const [error, setError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
+  const [countdown, setCountdown] = useState(3);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const stateSelectRef = useRef<HTMLSelectElement | null>(null);
 
-  // Cycle loading messages and advance to step 3
+  // Preload the /vsl route + player + thumbnail as soon as we enter step 2.
+  // By the time the user lands on step 3 and clicks, everything is cached.
   useEffect(() => {
     if (step !== 2) return;
     setLoadingIdx(0);
 
-    // Warm up the VSL player script while the "verifying" loader runs,
-    // so by the time the user clicks "Watch Video" it's already cached.
+    // 1. Preload the /vsl route bundle
+    router.preloadRoute({ to: "/vsl" }).catch(() => {});
+
+    // 2. Preload the VSL player script
     const PLAYER_SRC =
       "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
     if (!document.querySelector(`link[data-vsl-preload]`)) {
@@ -126,24 +150,59 @@ function Index() {
       document.head.appendChild(link);
     }
 
+    // 3. Preload the video thumbnail (first frame) — appears instantly on /vsl
+    if (!document.querySelector(`link[data-vsl-thumb]`)) {
+      const imgLink = document.createElement("link");
+      imgLink.rel = "preload";
+      imgLink.as = "image";
+      imgLink.href = VSL_THUMB;
+      imgLink.setAttribute("fetchpriority", "high");
+      imgLink.setAttribute("data-vsl-thumb", "true");
+      document.head.appendChild(imgLink);
+    }
+
     const interval = setInterval(() => {
       setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
-    }, 450);
+    }, 320);
     const timeout = setTimeout(() => {
       setRecordId(generateRecordId());
       setStep(3);
-    }, 1800);
+    }, 1200);
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [step]);
+  }, [step, router]);
+
+  // Countdown + auto-redirect on step 3
+  useEffect(() => {
+    if (step !== 3) return;
+    setCountdown(3);
+    const t = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(t);
+          // Auto-navigate to /vsl
+          router.navigate({ to: "/vsl" }).catch(() => {});
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [step, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !stateVal || !authorized) {
       setError("Please enter your name, choose a state, and authorize verification.");
       return;
+    }
+    // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
+    nameInputRef.current?.blur();
+    stateSelectRef.current?.blur();
+    if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
     setError("");
     setStep(2);
@@ -154,10 +213,6 @@ function Index() {
     setError("");
   };
 
-
-  // While verifying (step 2) on mobile, hide all surrounding chrome
-  // (header, hero, testimonials, footer) and center the loader so the
-  // user stays focused until the VSL.
   const focusMode = step === 2;
 
   return (
@@ -174,7 +229,7 @@ function Index() {
       <header className={`bg-[var(--brand)] text-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden>🇺🇸</span>
+            <FlagUS size={28} />
             <div className="leading-tight">
               <div className="text-base font-bold">Official Check</div>
               <div className="text-xs text-white/70">
@@ -182,17 +237,15 @@ function Index() {
               </div>
             </div>
           </div>
-          <nav className="flex items-center gap-6 text-sm">
-            <a href="#" className="hover:text-white/80">Home</a>
-            <a href="#" className="hover:text-white/80">About</a>
-            <a href="#" className="hover:text-white/80">Contact</a>
-          </nav>
+          {/* Nav removed to reduce exit links */}
         </div>
 
         {/* Hero */}
         <div className="mx-auto max-w-6xl px-6 pb-12 pt-6">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
-            <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
+            <Suspense fallback={<IconFallback />}>
+              <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
+            </Suspense>
             Official verification system
           </div>
           <h1 className="text-2xl font-bold leading-snug md:text-3xl">
@@ -231,11 +284,13 @@ function Index() {
                 <div className="relative">
                   <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
+                    ref={nameInputRef}
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="As shown on your official document"
                     className="w-full rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                    autoComplete="name"
                   />
                 </div>
               </div>
@@ -247,6 +302,7 @@ function Index() {
                 <div className="relative">
                   <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <select
+                    ref={stateSelectRef}
                     value={stateVal}
                     onChange={(e) => setStateVal(e.target.value)}
                     className="w-full appearance-none rounded-md border border-input bg-white py-2.5 pl-9 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
@@ -294,10 +350,16 @@ function Index() {
                   <Lock className="h-3 w-3" /> 256-bit encrypted
                 </span>
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" /> No credit card required
+                  <Suspense fallback={<IconFallback />}>
+                    <ShieldCheck className="h-3 w-3" />
+                  </Suspense>{" "}
+                  No credit card required
                 </span>
                 <span className="flex items-center gap-1">
-                  <FileCheck2 className="h-3 w-3" /> Free check
+                  <Suspense fallback={<IconFallback />}>
+                    <FileCheck2 className="h-3 w-3" />
+                  </Suspense>{" "}
+                  Free check
                 </span>
               </div>
             </form>
@@ -350,12 +412,21 @@ function Index() {
               <Link
                 to="/vsl"
                 preload="intent"
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90"
+                className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90"
               >
-                <Play className="h-4 w-4" /> Watch Official Video: How to Receive
+                <Play className="h-4 w-4" />
+                {countdown > 0
+                  ? `Watch Official Video — Redirecting in ${countdown}…`
+                  : "Opening Official Video…"}
               </Link>
-              <button className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70">
-                <Download className="h-4 w-4" /> Download Instructions (PDF) — Watch video first
+              <button
+                type="button"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70"
+              >
+                <Suspense fallback={<IconFallback />}>
+                  <Download className="h-4 w-4" />
+                </Suspense>{" "}
+                Download Instructions (PDF) — Watch video first
               </button>
 
               <button
@@ -381,7 +452,9 @@ function Index() {
             >
               <div className="mb-1 flex gap-0.5 text-amber-400">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                  <Suspense key={i} fallback={<IconFallback />}>
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                  </Suspense>
                 ))}
               </div>
               <p className="text-foreground/80">"{t.text}"</p>
@@ -393,19 +466,16 @@ function Index() {
         </div>
       </main>
 
-      {/* Footer — hidden on mobile during verify */}
+      {/* Footer — only Privacy Policy, hidden on mobile during verify */}
       <footer className={`border-t border-border bg-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-lg" aria-hidden>🇺🇸</span>
+              <FlagUS size={20} />
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
             <div className="flex flex-wrap gap-4">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
-              <a href="#" className="hover:text-foreground">Terms of Use</a>
-              <a href="#" className="hover:text-foreground">Contact</a>
-              <a href="#" className="hover:text-foreground">FAQ</a>
             </div>
           </div>
           <p className="mt-4 leading-relaxed">
