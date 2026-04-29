@@ -47,7 +47,7 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
         inst.instance?.getAttribute?.("id"),
         inst.instance?.getAttribute?.("original-id"),
         inst.analytics?.player?.options?.id,
-      ].filter(Boolean);
+      ].filter((id): id is string => typeof id === "string" && id.length > 0);
 
       return (
         ids.length === 0 ||
