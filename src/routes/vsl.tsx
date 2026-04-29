@@ -5,7 +5,7 @@ import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 import { FlagUS } from "../components/Flag";
 
 // Time in seconds when the pitch begins and the CTA unlocks
-const PITCH_REVEAL_SECONDS = 20 * 60 + 1; // 20:01 — 1 minute earlier than the pitch moment
+const PITCH_REVEAL_SECONDS = 21 * 60; // 21:00
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
@@ -103,57 +103,103 @@ function VslPage() {
   // Player script is injected via the route's head.scripts (SSR) for fastest load.
 
   // Reveal the CTA when the VTurb player reaches the pitch moment in the video.
-  // We poll for the player element + media (video/audio) and listen to timeupdate.
+  // We try multiple strategies because the smartplayer may use shadow DOM and
+  // mount the <video> element asynchronously:
+  //   1) Listen to the smartplayer global API events (most reliable)
+  //   2) Recursively scan all shadow roots for a <video>/<audio> element
+  //   3) Poll currentTime as a safety net (some players don't fire timeupdate)
   useEffect(() => {
     if (ctaUnlocked) return;
 
     let cancelled = false;
     let mediaEl: HTMLMediaElement | null = null;
-    let pollId: number | null = null;
+    const intervals: number[] = [];
+
+    const unlock = () => {
+      if (cancelled) return;
+      setCtaUnlocked(true);
+    };
+
+    const checkTime = (t: number) => {
+      if (typeof t === "number" && t >= PITCH_REVEAL_SECONDS) unlock();
+    };
 
     const onTimeUpdate = () => {
-      if (mediaEl && mediaEl.currentTime >= PITCH_REVEAL_SECONDS) {
-        setCtaUnlocked(true);
-      }
+      if (mediaEl) checkTime(mediaEl.currentTime);
     };
 
-    const attach = (el: HTMLMediaElement) => {
-      mediaEl = el;
-      el.addEventListener("timeupdate", onTimeUpdate);
-      // In case the user is already past the mark (resume)
-      onTimeUpdate();
-    };
-
-    const tryFind = () => {
-      if (cancelled) return;
-      const player = document.getElementById("ab-69f140ee2e62e594e34723cd");
-      // The smartplayer is a custom element that renders a <video> internally.
-      // It may use shadow DOM, so we check both light and shadow roots.
-      const root: ParentNode | null =
-        (player as unknown as { shadowRoot?: ShadowRoot } | null)?.shadowRoot ??
-        player;
-      const media =
-        (root?.querySelector?.("video, audio") as HTMLMediaElement | null) ??
-        (document.querySelector("video, audio") as HTMLMediaElement | null);
-
-      if (media) {
-        attach(media);
-        if (pollId !== null) {
-          window.clearInterval(pollId);
-          pollId = null;
+    // Recursively walk shadow roots looking for a media element
+    const findMediaDeep = (root: Document | ShadowRoot | Element): HTMLMediaElement | null => {
+      const direct = (root as ParentNode).querySelector?.("video, audio") as HTMLMediaElement | null;
+      if (direct) return direct;
+      const all = (root as ParentNode).querySelectorAll?.("*") ?? [];
+      for (const el of Array.from(all)) {
+        const sr = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+        if (sr) {
+          const found = findMediaDeep(sr);
+          if (found) return found;
         }
       }
+      return null;
     };
 
-    pollId = window.setInterval(tryFind, 500);
-    tryFind();
+    const attachMedia = (el: HTMLMediaElement) => {
+      if (mediaEl) return;
+      mediaEl = el;
+      el.addEventListener("timeupdate", onTimeUpdate);
+      checkTime(el.currentTime);
+    };
+
+    // Strategy 1+2: poll until we either get the smartplayer global or a media element
+    const poll = window.setInterval(() => {
+      if (cancelled) return;
+
+      const sp = (window as unknown as {
+        smartplayer?: {
+          instances?: Record<string, {
+            on?: (ev: string, cb: (p: { currentTime?: number } | number) => void) => void;
+            getCurrentTime?: () => number;
+          }>;
+        };
+      }).smartplayer;
+      const inst = sp?.instances?.["ab-69f140ee2e62e594e34723cd"];
+      if (inst && typeof inst.on === "function") {
+        inst.on("timeupdate", (p) => {
+          const t = typeof p === "number" ? p : p?.currentTime;
+          if (typeof t === "number") checkTime(t);
+        });
+        // Safety: also poll currentTime in case 'timeupdate' isn't emitted
+        const tick = window.setInterval(() => {
+          if (cancelled) return;
+          const t = inst.getCurrentTime?.();
+          if (typeof t === "number") checkTime(t);
+        }, 1000);
+        intervals.push(tick);
+        window.clearInterval(poll);
+        return;
+      }
+
+      const media = findMediaDeep(document);
+      if (media) {
+        attachMedia(media);
+        // Also poll currentTime as a safety net
+        const tick = window.setInterval(() => {
+          if (cancelled || !mediaEl) return;
+          checkTime(mediaEl.currentTime);
+        }, 1000);
+        intervals.push(tick);
+        window.clearInterval(poll);
+      }
+    }, 500);
+    intervals.push(poll);
 
     return () => {
       cancelled = true;
-      if (pollId !== null) window.clearInterval(pollId);
+      intervals.forEach((id) => window.clearInterval(id));
       if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [ctaUnlocked]);
+
 
   return (
     <div
