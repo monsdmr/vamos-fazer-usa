@@ -116,6 +116,8 @@ function UpsellPage() {
         </div>
       </header>
 
+      <UpsellProgress currentStep={1} />
+
       {/* Title */}
       <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
