@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VslRouteImport } from './routes/vsl'
+import { Route as Upsell3RouteImport } from './routes/upsell3'
 import { Route as Upsell2RouteImport } from './routes/upsell2'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const VslRoute = VslRouteImport.update({
   id: '/vsl',
   path: '/vsl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Upsell3Route = Upsell3RouteImport.update({
+  id: '/upsell3',
+  path: '/upsell3',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Upsell2Route = Upsell2RouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
+  '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
+  '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
+  '/upsell3': typeof Upsell3Route
   '/vsl': typeof VslRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1' | '/upsell2' | '/vsl'
+  fullPaths: '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1' | '/upsell2' | '/vsl'
-  id: '__root__' | '/' | '/upsell1' | '/upsell2' | '/vsl'
+  to: '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
+  id: '__root__' | '/' | '/upsell1' | '/upsell2' | '/upsell3' | '/vsl'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   Upsell1Route: typeof Upsell1Route
   Upsell2Route: typeof Upsell2Route
+  Upsell3Route: typeof Upsell3Route
   VslRoute: typeof VslRoute
 }
 
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/vsl'
       fullPath: '/vsl'
       preLoaderRoute: typeof VslRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upsell3': {
+      id: '/upsell3'
+      path: '/upsell3'
+      fullPath: '/upsell3'
+      preLoaderRoute: typeof Upsell3RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/upsell2': {
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   Upsell1Route: Upsell1Route,
   Upsell2Route: Upsell2Route,
+  Upsell3Route: Upsell3Route,
   VslRoute: VslRoute,
 }
 export const routeTree = rootRouteImport
