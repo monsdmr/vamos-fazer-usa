@@ -174,7 +174,7 @@ function UpsellPage() {
               animation: "upsellPulse 1.6s ease-in-out infinite",
             }}
           >
-            INCREASE YOUR BENEFITS! NOW ONLY!!!
+            I WON'T LET IT ESCAPE
           </a>
           <a
             href={NO_URL}
