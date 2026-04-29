@@ -9,16 +9,7 @@ const PLAYER_SRC = `https://scripts.converteai.net/f60c6c24-93af-4941-ad66-43dcc
 const YES_URL = "https://www.checkout-ds24.com/answer/yes?template=25753";
 const NO_URL = "https://www.checkout-ds24.com/answer/no";
 
-declare module "react" {
-  namespace JSX {
-    interface IntrinsicElements {
-      "vturb-smartplayer": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & { id?: string; style?: React.CSSProperties },
-        HTMLElement
-      >;
-    }
-  }
-}
+// <vturb-smartplayer> JSX type is already declared in src/routes/vsl.tsx
 
 export const Route = createFileRoute("/upsell1")({
   head: () => ({
