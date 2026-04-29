@@ -216,7 +216,7 @@ function VslPage() {
         <div className="mt-8 flex flex-col items-center justify-center sm:mt-10">
           {ctaUnlocked ? (
             <a
-              href="https://www.xamericansystem.online/-us"
+              href="https://go.centerpag.com/PPU38CQA79I"
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full max-w-md animate-in fade-in zoom-in px-2 duration-500 transition-transform hover:scale-105 active:scale-95"
