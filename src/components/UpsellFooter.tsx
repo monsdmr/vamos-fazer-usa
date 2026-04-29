@@ -22,8 +22,6 @@ export function UpsellFooter() {
               <li>
                 <a
                   href={EARNINGS_DISCLAIMER}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
                 >
                   Earnings Disclaimer
@@ -39,8 +37,6 @@ export function UpsellFooter() {
               <li>
                 <a
                   href={EXPLODELY_REFUND}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
                 >
                   Explodely Refund Policy
@@ -49,8 +45,6 @@ export function UpsellFooter() {
               <li>
                 <a
                   href={FTC_COMPLIANCE}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
                 >
                   FTC Compliance
