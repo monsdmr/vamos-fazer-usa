@@ -7,7 +7,7 @@ import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
 const PITCH_REVEAL_SECONDS = 600; // 10 minutes — adjust to match your VSL pitch moment
 
 // Allow the custom element <vturb-smartplayer> in TSX
-declare global {
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "vturb-smartplayer": React.DetailedHTMLProps<
