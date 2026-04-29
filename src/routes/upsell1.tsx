@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+// Reveal CTA after the user has actually watched this many seconds of the video
+const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
+
 
 // Isolated upsell page — replicates the reference layout (Final Step Before Access)
 // vturb player id for this upsell
