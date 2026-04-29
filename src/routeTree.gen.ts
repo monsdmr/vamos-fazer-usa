@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VslRouteImport } from './routes/vsl'
+import { Route as Upsell2RouteImport } from './routes/upsell2'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VslRoute = VslRouteImport.update({
   id: '/vsl',
   path: '/vsl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Upsell2Route = Upsell2RouteImport.update({
+  id: '/upsell2',
+  path: '/upsell2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Upsell1Route = Upsell1RouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/upsell2': typeof Upsell2Route
   '/vsl': typeof VslRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/upsell2': typeof Upsell2Route
   '/vsl': typeof VslRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/upsell1': typeof Upsell1Route
+  '/upsell2': typeof Upsell2Route
   '/vsl': typeof VslRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upsell1' | '/vsl'
+  fullPaths: '/' | '/upsell1' | '/upsell2' | '/vsl'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upsell1' | '/vsl'
-  id: '__root__' | '/' | '/upsell1' | '/vsl'
+  to: '/' | '/upsell1' | '/upsell2' | '/vsl'
+  id: '__root__' | '/' | '/upsell1' | '/upsell2' | '/vsl'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   Upsell1Route: typeof Upsell1Route
+  Upsell2Route: typeof Upsell2Route
   VslRoute: typeof VslRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/vsl'
       fullPath: '/vsl'
       preLoaderRoute: typeof VslRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/upsell2': {
+      id: '/upsell2'
+      path: '/upsell2'
+      fullPath: '/upsell2'
+      preLoaderRoute: typeof Upsell2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/upsell1': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   Upsell1Route: Upsell1Route,
+  Upsell2Route: Upsell2Route,
   VslRoute: VslRoute,
 }
 export const routeTree = rootRouteImport
