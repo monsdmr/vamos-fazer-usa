@@ -56,6 +56,10 @@ export const Route = createFileRoute("/vsl")({
         children:
           "!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);",
       },
+      {
+        src: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
+        async: true,
+      },
     ],
   }),
   component: VslPage,
@@ -64,16 +68,7 @@ export const Route = createFileRoute("/vsl")({
 function VslPage() {
   const [ctaUnlocked, setCtaUnlocked] = useState(false);
 
-  // Inject the vturb smartplayer script once
-  useEffect(() => {
-    const SRC =
-      "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
-    if (document.querySelector(`script[src="${SRC}"]`)) return;
-    const s = document.createElement("script");
-    s.src = SRC;
-    s.async = true;
-    document.head.appendChild(s);
-  }, []);
+  // Player script is injected via the route's head.scripts (SSR) for fastest load.
 
   // Reveal the CTA after the configured pitch moment
   useEffect(() => {

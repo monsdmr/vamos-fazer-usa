@@ -39,10 +39,13 @@ export const Route = createRootRoute({
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      // Warm up VSL player network connections from any page
+      { rel: "preconnect", href: "https://scripts.converteai.net", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://cdn.converteai.net", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://images.converteai.net", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://m3u8.vturb.net", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://api.vturb.com.br" },
     ],
   }),
   shellComponent: RootShell,

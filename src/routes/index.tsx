@@ -112,6 +112,20 @@ function Index() {
   useEffect(() => {
     if (step !== 2) return;
     setLoadingIdx(0);
+
+    // Warm up the VSL player script while the "verifying" loader runs,
+    // so by the time the user clicks "Watch Video" it's already cached.
+    const PLAYER_SRC =
+      "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
+    if (!document.querySelector(`link[data-vsl-preload]`)) {
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "script";
+      link.href = PLAYER_SRC;
+      link.setAttribute("data-vsl-preload", "true");
+      document.head.appendChild(link);
+    }
+
     const interval = setInterval(() => {
       setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
     }, 450);
@@ -324,6 +338,7 @@ function Index() {
 
               <Link
                 to="/vsl"
+                preload="intent"
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90"
               >
                 <Play className="h-4 w-4" /> Watch Official Video: How to Receive
