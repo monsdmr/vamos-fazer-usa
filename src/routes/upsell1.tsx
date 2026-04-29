@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { UpsellFooter } from "@/components/UpsellFooter";
 import { UpsellProgress } from "@/components/UpsellProgress";
+import { UpsellPriceBlock } from "@/components/UpsellPriceBlock";
 
 // Reveal CTA after the user has actually watched this many seconds of the video
 const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
@@ -164,7 +165,8 @@ function UpsellPage() {
 
       {/* CTA buttons — appear right under the video once 3:40 is reached */}
       {ctaUnlocked && (
-        <section className="mx-auto w-full max-w-3xl px-4 mt-6 mb-12 flex flex-col items-center gap-4 animate-fade-in">
+        <section className="mx-auto w-full max-w-3xl px-4 mt-6 mb-12 flex flex-col items-center gap-5 animate-fade-in">
+          <UpsellPriceBlock price="$47.00" recurring="$47.00 every 30 days, until canceled!" />
           <a
             href={YES_URL}
             className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
