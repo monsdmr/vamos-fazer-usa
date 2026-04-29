@@ -287,6 +287,25 @@ function VslPage() {
           </p>
         </div>
       </footer>
+
+      <style>{`
+        @keyframes exclusiveCtaPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 10px 30px -8px rgba(245, 180, 90, 0.55), 0 0 0 0 rgba(245, 180, 90, 0.6);
+          }
+          50% {
+            transform: scale(1.04);
+            box-shadow: 0 14px 36px -8px rgba(245, 180, 90, 0.75), 0 0 0 14px rgba(245, 180, 90, 0);
+          }
+        }
+        .exclusive-cta {
+          animation: exclusiveCtaPulse 1.8s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .exclusive-cta { animation: none; }
+        }
+      `}</style>
     </div>
   );
 }
