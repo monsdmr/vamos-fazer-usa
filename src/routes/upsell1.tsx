@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+// Reveal CTA after the user has actually watched this many seconds of the video
+const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
+
 
 // Isolated upsell page — replicates the reference layout (Final Step Before Access)
 // vturb player id for this upsell
@@ -31,6 +35,8 @@ export const Route = createFileRoute("/upsell1")({
 });
 
 function UpsellPage() {
+  const [ctaUnlocked, setCtaUnlocked] = useState(false);
+
   useEffect(() => {
     const ID = "vturb-upsell1-script";
     const existing = document.getElementById(ID);
@@ -41,6 +47,47 @@ function UpsellPage() {
     s.async = true;
     document.head.appendChild(s);
   }, []);
+
+  // Sync CTA reveal with actual video playback time (3:40)
+  useEffect(() => {
+    if (ctaUnlocked) return;
+
+    let media: HTMLMediaElement | null = null;
+    let pollId: number | null = null;
+
+    const onTimeUpdate = () => {
+      if (media && media.currentTime >= CTA_REVEAL_SECONDS) {
+        setCtaUnlocked(true);
+      }
+    };
+
+    const tryFind = () => {
+      const player = document.getElementById(`vid-${PLAYER_ID}`);
+      const root: ParentNode | null =
+        (player && (player as HTMLElement & { shadowRoot?: ShadowRoot | null }).shadowRoot) ||
+        player ||
+        document;
+      const found = root.querySelector("video, audio") as HTMLMediaElement | null;
+      if (found) {
+        media = found;
+        media.addEventListener("timeupdate", onTimeUpdate);
+        onTimeUpdate();
+        if (pollId !== null) {
+          window.clearInterval(pollId);
+          pollId = null;
+        }
+      }
+    };
+
+    pollId = window.setInterval(tryFind, 500);
+    tryFind();
+
+    return () => {
+      if (pollId !== null) window.clearInterval(pollId);
+      if (media) media.removeEventListener("timeupdate", onTimeUpdate);
+    };
+  }, [ctaUnlocked]);
+
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
@@ -87,46 +134,50 @@ function UpsellPage() {
         </div>
       </section>
 
-      {/* Processing block */}
-      <section className="mx-auto w-full max-w-3xl px-4 mt-8 text-center">
-        <h2 className="text-xl sm:text-2xl font-bold">Processing your request...</h2>
-        <div className="mt-4 flex justify-center">
-          <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-[#0e2a3a] animate-spin" />
-        </div>
-        <p className="mt-4 text-slate-500 text-sm sm:text-base">
-          Connecting to financial verification system...
-        </p>
-
-        {/* Fake progress bar */}
-        <div className="mt-6">
-          <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className="h-full bg-[#CC1212]"
-              style={{ width: "99%", transition: "width 1s ease" }}
-            />
+      {/* Processing block — visible until the CTA unlocks */}
+      {!ctaUnlocked && (
+        <section className="mx-auto w-full max-w-3xl px-4 mt-8 text-center animate-fade-in">
+          <h2 className="text-xl sm:text-2xl font-bold">Processing your request...</h2>
+          <div className="mt-4 flex justify-center">
+            <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-[#0e2a3a] animate-spin" />
           </div>
-          <div className="mt-2 text-right text-xs font-semibold text-slate-500">99%</div>
-        </div>
-      </section>
+          <p className="mt-4 text-slate-500 text-sm sm:text-base">
+            Connecting to financial verification system...
+          </p>
 
-      {/* CTA buttons */}
-      <section className="mx-auto w-full max-w-3xl px-4 mt-8 mb-12 flex flex-col items-center gap-4">
-        <a
-          href={YES_URL}
-          className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
-          style={{
-            animation: "upsellPulse 1.6s ease-in-out infinite",
-          }}
-        >
-          INCREASE YOUR BENEFITS! NOW ONLY!!!
-        </a>
-        <a
-          href={NO_URL}
-          className="text-slate-400 hover:text-slate-600 underline text-sm"
-        >
-          I don't want to increase my benefit.
-        </a>
-      </section>
+          {/* Fake progress bar */}
+          <div className="mt-6">
+            <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div
+                className="h-full bg-[#CC1212]"
+                style={{ width: "99%", transition: "width 1s ease" }}
+              />
+            </div>
+            <div className="mt-2 text-right text-xs font-semibold text-slate-500">99%</div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA buttons — appear right under the video once 3:40 is reached */}
+      {ctaUnlocked && (
+        <section className="mx-auto w-full max-w-3xl px-4 mt-6 mb-12 flex flex-col items-center gap-4 animate-fade-in">
+          <a
+            href={YES_URL}
+            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
+            style={{
+              animation: "upsellPulse 1.6s ease-in-out infinite",
+            }}
+          >
+            INCREASE YOUR BENEFITS! NOW ONLY!!!
+          </a>
+          <a
+            href={NO_URL}
+            className="text-slate-400 hover:text-slate-600 underline text-sm"
+          >
+            I don't want to increase my benefit.
+          </a>
+        </section>
+      )}
 
       <footer
         className="mt-auto w-full bg-[#0e2a3a] text-white/70 text-xs"
