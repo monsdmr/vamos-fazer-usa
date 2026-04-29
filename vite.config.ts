@@ -20,6 +20,9 @@ export default defineConfig({
       { path: "/upsell1" },
       { path: "/upsell2" },
       { path: "/upsell3" },
+      { path: "/disclaimers/earnings" },
+      { path: "/disclaimers/ftc" },
+      { path: "/disclaimers/refund" },
     ],
   },
 });
