@@ -115,6 +115,8 @@ function Upsell2Page() {
         </div>
       </header>
 
+      <UpsellProgress currentStep={2} />
+
       {/* Title */}
       <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
         <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-slate-500">
