@@ -1,11 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 
 import { FlagUS } from "../components/Flag";
+import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 
 // Time in seconds when the pitch begins and the CTA unlocks
 const PITCH_REVEAL_SECONDS = 21 * 60; // 21:00
+const PLAYER_ELEMENT_ID = "ab-69f140ee2e62e594e34723cd";
+const PLAYER_VARIATION_IDS = [
+  PLAYER_ELEMENT_ID,
+  "69f0e02d6cda6b6e2e6339e9",
+  "69f0e07396260377bd152421",
+  "69f0e0ebccff5745f0eccfb6",
+];
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
@@ -43,7 +51,7 @@ export const Route = createFileRoute("/vsl")({
         rel: "preload",
         href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
         as: "script",
-        fetchpriority: "high",
+        fetchPriority: "high",
       },
       {
         rel: "preload",
@@ -54,7 +62,7 @@ export const Route = createFileRoute("/vsl")({
         rel: "preload",
         href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg",
         as: "image",
-        fetchpriority: "high",
+        fetchPriority: "high",
       },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
@@ -76,9 +84,8 @@ const PLAYER_SRC =
   "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 function VslPage() {
-  // In dev/preview, show the CTA immediately so we can review the layout.
-  // In production, it stays hidden until the video reaches the unlock minute.
-  const [ctaUnlocked, setCtaUnlocked] = useState(import.meta.env.DEV);
+  const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
+  const ctaUnlocked = watchedTimeUnlocked;
 
   // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
   // Doing this in head.scripts (SSR) breaks on preview refresh / HMR because the script
@@ -99,107 +106,6 @@ function VslPage() {
       // leave the script in place across navigations; only the route remount handles it
     };
   }, []);
-
-  // Player script is injected via the route's head.scripts (SSR) for fastest load.
-
-  // Reveal the CTA when the VTurb player reaches the pitch moment in the video.
-  // We try multiple strategies because the smartplayer may use shadow DOM and
-  // mount the <video> element asynchronously:
-  //   1) Listen to the smartplayer global API events (most reliable)
-  //   2) Recursively scan all shadow roots for a <video>/<audio> element
-  //   3) Poll currentTime as a safety net (some players don't fire timeupdate)
-  useEffect(() => {
-    if (ctaUnlocked) return;
-
-    let cancelled = false;
-    let mediaEl: HTMLMediaElement | null = null;
-    const intervals: number[] = [];
-
-    const unlock = () => {
-      if (cancelled) return;
-      setCtaUnlocked(true);
-    };
-
-    const checkTime = (t: number) => {
-      if (typeof t === "number" && t >= PITCH_REVEAL_SECONDS) unlock();
-    };
-
-    const onTimeUpdate = () => {
-      if (mediaEl) checkTime(mediaEl.currentTime);
-    };
-
-    // Recursively walk shadow roots looking for a media element
-    const findMediaDeep = (root: Document | ShadowRoot | Element): HTMLMediaElement | null => {
-      const direct = (root as ParentNode).querySelector?.("video, audio") as HTMLMediaElement | null;
-      if (direct) return direct;
-      const all = (root as ParentNode).querySelectorAll?.("*") ?? [];
-      for (const el of Array.from(all)) {
-        const sr = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
-        if (sr) {
-          const found = findMediaDeep(sr);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    const attachMedia = (el: HTMLMediaElement) => {
-      if (mediaEl) return;
-      mediaEl = el;
-      el.addEventListener("timeupdate", onTimeUpdate);
-      checkTime(el.currentTime);
-    };
-
-    // Strategy 1+2: poll until we either get the smartplayer global or a media element
-    const poll = window.setInterval(() => {
-      if (cancelled) return;
-
-      const sp = (window as unknown as {
-        smartplayer?: {
-          instances?: Record<string, {
-            on?: (ev: string, cb: (p: { currentTime?: number } | number) => void) => void;
-            getCurrentTime?: () => number;
-          }>;
-        };
-      }).smartplayer;
-      const inst = sp?.instances?.["ab-69f140ee2e62e594e34723cd"];
-      if (inst && typeof inst.on === "function") {
-        inst.on("timeupdate", (p) => {
-          const t = typeof p === "number" ? p : p?.currentTime;
-          if (typeof t === "number") checkTime(t);
-        });
-        // Safety: also poll currentTime in case 'timeupdate' isn't emitted
-        const tick = window.setInterval(() => {
-          if (cancelled) return;
-          const t = inst.getCurrentTime?.();
-          if (typeof t === "number") checkTime(t);
-        }, 1000);
-        intervals.push(tick);
-        window.clearInterval(poll);
-        return;
-      }
-
-      const media = findMediaDeep(document);
-      if (media) {
-        attachMedia(media);
-        // Also poll currentTime as a safety net
-        const tick = window.setInterval(() => {
-          if (cancelled || !mediaEl) return;
-          checkTime(mediaEl.currentTime);
-        }, 1000);
-        intervals.push(tick);
-        window.clearInterval(poll);
-      }
-    }, 500);
-    intervals.push(poll);
-
-    return () => {
-      cancelled = true;
-      intervals.forEach((id) => window.clearInterval(id));
-      if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
-    };
-  }, [ctaUnlocked]);
-
 
   return (
     <div
@@ -255,7 +161,7 @@ function VslPage() {
         {/* Video player (vturb smartplayer) — full-bleed on mobile */}
         <div className="mt-4 -mx-3 overflow-hidden shadow-2xl ring-1 ring-black/10 sm:mx-0 sm:mt-6 sm:rounded-xl">
           <vturb-smartplayer
-            id="ab-69f140ee2e62e594e34723cd"
+            id={PLAYER_ELEMENT_ID}
             style={{ display: "block", margin: "0 auto", width: "100%" }}
           ></vturb-smartplayer>
         </div>

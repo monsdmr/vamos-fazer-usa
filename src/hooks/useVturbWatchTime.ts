@@ -4,21 +4,31 @@ import { useEffect, useState } from "react";
  * Unlocks when the VTurb smartplayer reaches `revealSeconds` of ACTUAL playback time
  * (not page-open time). Combines 3 strategies for reliability across shadow DOM /
  * cross-origin iframes / late media mounts:
- *   1) window.smartplayer.instances[playerElementId] events + getCurrentTime()
+ *   1) window.smartplayer.instances events + live video.currentTime polling
  *   2) Recursive shadow-DOM scan for the underlying <video>/<audio>
  *   3) currentTime polling as a safety net
  *
- * @param playerElementId The DOM id of the <vturb-smartplayer> element
+ * @param playerElementId The DOM id(s) of the <vturb-smartplayer> element/config
  * @param revealSeconds   Watched seconds required before unlock
  */
-export function useVturbWatchTime(playerElementId: string, revealSeconds: number) {
+export function useVturbWatchTime(playerElementId: string | string[], revealSeconds: number) {
   const [unlocked, setUnlocked] = useState(false);
+  const targetIdsKey = Array.isArray(playerElementId)
+    ? playerElementId.join("|")
+    : playerElementId;
 
   useEffect(() => {
     if (unlocked) return;
 
+    const targetIds = new Set(
+      targetIdsKey
+        .split("|")
+        .flatMap((id) => [id, id.replace(/^vid-/, "")])
+    );
+
     let cancelled = false;
     let mediaEl: HTMLMediaElement | null = null;
+    const attachedPlayers = new WeakSet<object>();
     const intervals: number[] = [];
 
     const unlock = () => {
@@ -26,7 +36,45 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
     };
 
     const checkTime = (t: unknown) => {
-      if (typeof t === "number" && t >= revealSeconds) unlock();
+      const seconds = typeof t === "number" ? t : Number(t);
+      if (Number.isFinite(seconds) && seconds >= revealSeconds) unlock();
+    };
+
+    const playerMatches = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
+      const ids = [
+        inst.id,
+        inst.instance?.id,
+        inst.instance?.getAttribute?.("id"),
+        inst.instance?.getAttribute?.("original-id"),
+        inst.analytics?.player?.options?.id,
+      ].filter((id): id is string => typeof id === "string" && id.length > 0);
+
+      return (
+        ids.length === 0 ||
+        ids.some((id) => targetIds.has(id))
+      );
+    };
+
+    const getSmartplayerInstances = (): SmartplayerCompatInstance[] => {
+      const instances = (window as unknown as SmartplayerCompatWindow).smartplayer?.instances;
+      if (!instances) return [];
+      return Array.isArray(instances) ? instances : Object.values(instances);
+    };
+
+    const attachSmartplayer = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
+      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst, totalPlayers)) return;
+      attachedPlayers.add(inst);
+
+      inst.on?.("timeupdate", (p) => {
+        checkTime(typeof p === "number" ? p : p?.currentTime ?? p?.time);
+      });
+
+      inst.instance?.addEventListener?.("video:timeupdate", (event) => {
+        checkTime((event as CustomEvent<{ time?: number }>).detail?.time);
+      });
+
+      checkTime(inst.video?.currentTime);
+      checkTime(inst.instance?.video?.currentTime);
     };
 
     const onTimeUpdate = () => {
@@ -61,30 +109,21 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
     const poll = window.setInterval(() => {
       if (cancelled) return;
 
-      const sp = (window as unknown as {
-        smartplayer?: {
-          instances?: Record<
-            string,
-            {
-              on?: (
-                ev: string,
-                cb: (p: { currentTime?: number } | number) => void
-              ) => void;
-              getCurrentTime?: () => number;
-            }
-          >;
-        };
-      }).smartplayer;
-      const inst = sp?.instances?.[playerElementId];
-      if (inst && typeof inst.on === "function") {
-        inst.on("timeupdate", (p) => {
-          const t = typeof p === "number" ? p : p?.currentTime;
-          checkTime(t);
-        });
+      const players = getSmartplayerInstances();
+      const matchingPlayers = players.filter((inst) => playerMatches(inst, players.length));
+      if (matchingPlayers.length > 0) {
+        matchingPlayers.forEach((inst) => attachSmartplayer(inst, players.length));
         const tick = window.setInterval(() => {
           if (cancelled) return;
-          checkTime(inst.getCurrentTime?.());
-        }, 1000);
+          const currentPlayers = getSmartplayerInstances();
+          currentPlayers
+            .filter((inst) => playerMatches(inst, currentPlayers.length))
+            .forEach((inst) => {
+              attachSmartplayer(inst, currentPlayers.length);
+              checkTime(inst.video?.currentTime);
+              checkTime(inst.instance?.video?.currentTime);
+            });
+        }, 500);
         intervals.push(tick);
         window.clearInterval(poll);
         return;
@@ -108,7 +147,26 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       intervals.forEach((id) => window.clearInterval(id));
       if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [playerElementId, revealSeconds, unlocked]);
+  }, [targetIdsKey, revealSeconds, unlocked]);
 
   return unlocked;
 }
+
+type SmartplayerCompatInstance = {
+  id?: string;
+  on?: (ev: string, cb: (p: { currentTime?: number; time?: number } | number) => void) => void;
+  video?: { currentTime?: number };
+  analytics?: { player?: { options?: { id?: string } } };
+  instance?: HTMLElement & {
+    id?: string;
+    video?: { currentTime?: number };
+    addEventListener?: HTMLElement["addEventListener"];
+    getAttribute?: HTMLElement["getAttribute"];
+  };
+};
+
+type SmartplayerCompatWindow = {
+  smartplayer?: {
+    instances?: SmartplayerCompatInstance[] | Record<string, SmartplayerCompatInstance>;
+  };
+};
