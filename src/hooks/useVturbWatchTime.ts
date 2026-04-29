@@ -31,7 +31,7 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       if (Number.isFinite(seconds) && seconds >= revealSeconds) unlock();
     };
 
-    const playerMatches = (inst: SmartplayerCompatInstance) => {
+    const playerMatches = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
       const ids = [
         inst.id,
         inst.instance?.id,
@@ -41,6 +41,7 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       ].filter(Boolean);
 
       return (
+        totalPlayers === 1 ||
         ids.length === 0 ||
         ids.includes(playerElementId) ||
         ids.includes(playerElementId.replace(/^vid-/, ""))
@@ -53,8 +54,8 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       return Array.isArray(instances) ? instances : Object.values(instances);
     };
 
-    const attachSmartplayer = (inst: SmartplayerCompatInstance) => {
-      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst)) return;
+    const attachSmartplayer = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
+      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst, totalPlayers)) return;
       attachedPlayers.add(inst);
 
       inst.on?.("timeupdate", (p) => {
@@ -103,12 +104,13 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
 
       const players = getSmartplayerInstances();
       if (players.length > 0) {
-        players.forEach(attachSmartplayer);
+        players.forEach((inst) => attachSmartplayer(inst, players.length));
         const tick = window.setInterval(() => {
           if (cancelled) return;
-          getSmartplayerInstances().forEach((inst) => {
-            attachSmartplayer(inst);
-            if (playerMatches(inst)) {
+          const currentPlayers = getSmartplayerInstances();
+          currentPlayers.forEach((inst) => {
+            attachSmartplayer(inst, currentPlayers.length);
+            if (playerMatches(inst, currentPlayers.length)) {
               checkTime(inst.video?.currentTime);
               checkTime(inst.instance?.video?.currentTime);
             }
