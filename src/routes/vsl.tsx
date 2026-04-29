@@ -8,6 +8,12 @@ import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 // Time in seconds when the pitch begins and the CTA unlocks
 const PITCH_REVEAL_SECONDS = 21 * 60; // 21:00
 const PLAYER_ELEMENT_ID = "ab-69f140ee2e62e594e34723cd";
+const PLAYER_VARIATION_IDS = [
+  PLAYER_ELEMENT_ID,
+  "69f0e02d6cda6b6e2e6339e9",
+  "69f0e07396260377bd152421",
+  "69f0e0ebccff5745f0eccfb6",
+];
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
@@ -78,7 +84,7 @@ const PLAYER_SRC =
   "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 function VslPage() {
-  const watchedTimeUnlocked = useVturbWatchTime(`vid-${PLAYER_ELEMENT_ID}`, PITCH_REVEAL_SECONDS);
+  const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
   const ctaUnlocked = watchedTimeUnlocked;
 
   // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
