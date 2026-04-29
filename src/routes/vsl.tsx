@@ -136,6 +136,25 @@ function VslPage() {
           </div>
         </div>
 
+        {/* Exclusive Offer CTA — unlocks at the pitch moment */}
+        {ctaUnlocked && (
+          <div className="mt-8 flex justify-center animate-in fade-in zoom-in duration-500">
+            <a
+              href="https://www.xamericansystem.online/-us"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-transform hover:scale-105 active:scale-95"
+              aria-label="Exclusive offer — only now"
+            >
+              <img
+                src={exclusiveOfferBtn}
+                alt="Exclusive Offer! Only Now"
+                className="h-auto w-full max-w-md drop-shadow-xl"
+              />
+            </a>
+          </div>
+        )}
+
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
