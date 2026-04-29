@@ -368,8 +368,8 @@ function Index() {
           )}
         </div>
 
-        {/* Testimonial strip */}
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
+        {/* Testimonial strip — hidden on mobile during verify */}
+        <div className={`mt-6 grid gap-3 md:grid-cols-3 ${focusMode ? "hidden md:grid" : ""}`}>
           {[
             { name: "Sarah M.", state: "TX", text: "Quick and easy process. Got my response in seconds." },
             { name: "James R.", state: "FL", text: "Clear instructions and felt secure throughout." },
