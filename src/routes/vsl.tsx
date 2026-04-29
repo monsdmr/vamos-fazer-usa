@@ -56,17 +56,36 @@ export const Route = createFileRoute("/vsl")({
         children:
           "!function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);",
       },
-      {
-        src: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
-        async: true,
-      },
     ],
   }),
   component: VslPage,
 });
 
+const PLAYER_SRC =
+  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
+
 function VslPage() {
   const [ctaUnlocked, setCtaUnlocked] = useState(false);
+
+  // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
+  // Doing this in head.scripts (SSR) breaks on preview refresh / HMR because the script
+  // runs once globally and re-mounts of <vturb-smartplayer> end up orphaned.
+  useEffect(() => {
+    const ID = "vturb-player-script";
+    // If already injected (HMR / fast-refresh), force a re-init by removing it first.
+    const existing = document.getElementById(ID);
+    if (existing) existing.remove();
+
+    const s = document.createElement("script");
+    s.id = ID;
+    s.src = PLAYER_SRC;
+    s.async = true;
+    document.head.appendChild(s);
+
+    return () => {
+      // leave the script in place across navigations; only the route remount handles it
+    };
+  }, []);
 
   // Player script is injected via the route's head.scripts (SSR) for fastest load.
 
