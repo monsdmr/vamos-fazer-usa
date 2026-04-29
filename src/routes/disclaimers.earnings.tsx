@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { DisclaimerReturnButton } from "@/components/DisclaimerReturnButton";
 
 export const Route = createFileRoute("/disclaimers/earnings")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/disclaimers/earnings")({
 function EarningsDisclaimerPage() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
+      <DisclaimerReturnButton />
       <div className="flex-1 mb-8">
         <div className="max-w-4xl mx-auto mt-10 px-6 sm:px-10 space-y-4">
           <h1 className="text-2xl font-bold">Earnings Disclaimer</h1>
