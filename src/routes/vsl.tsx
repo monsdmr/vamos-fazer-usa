@@ -1,17 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  Lock,
-  ShieldCheck,
-  BadgeCheck,
-  Play,
-  ArrowDown,
-  Volume2,
-} from "lucide-react";
+import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
 
-// Time in seconds (from video start) when the pitch begins and the CTA unlocks
+// Time in seconds when the pitch begins and the CTA unlocks
 const PITCH_REVEAL_SECONDS = 600; // 10 minutes — adjust to match your VSL pitch moment
+
+// Allow the custom element <vturb-smartplayer> in TSX
+declare module "react" {
+  namespace JSX {
+    interface IntrinsicElements {
+      "vturb-smartplayer": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & { id?: string },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 export const Route = createFileRoute("/vsl")({
   head: () => ({
@@ -34,15 +39,25 @@ export const Route = createFileRoute("/vsl")({
 });
 
 function VslPage() {
-  const [playing, setPlaying] = useState(false);
   const [ctaUnlocked, setCtaUnlocked] = useState(false);
 
-  // Reveal the CTA after the configured pitch moment once the user starts the video
+  // Inject the vturb smartplayer script once
   useEffect(() => {
-    if (!playing || ctaUnlocked) return;
+    const SRC =
+      "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
+    if (document.querySelector(`script[src="${SRC}"]`)) return;
+    const s = document.createElement("script");
+    s.src = SRC;
+    s.async = true;
+    document.head.appendChild(s);
+  }, []);
+
+  // Reveal the CTA after the configured pitch moment
+  useEffect(() => {
+    if (ctaUnlocked) return;
     const timer = setTimeout(() => setCtaUnlocked(true), PITCH_REVEAL_SECONDS * 1000);
     return () => clearTimeout(timer);
-  }, [playing, ctaUnlocked]);
+  }, [ctaUnlocked]);
 
   return (
     <div
@@ -96,44 +111,12 @@ function VslPage() {
           <ArrowDown className="mx-auto mt-3 h-5 w-5 animate-bounce text-muted-foreground" />
         </div>
 
-        {/* Video player */}
-        <div className="mt-6 overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-black/10">
-          <div className="relative aspect-video w-full">
-            {!playing ? (
-              <button
-                type="button"
-                onClick={() => setPlaying(true)}
-                className="group absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-slate-900 to-black"
-                aria-label="Play video"
-              >
-                {/* "Tap to play sound" badge */}
-                <div className="mb-6 inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-lg">
-                  <Volume2 className="h-4 w-4" />
-                  Tap to play sound
-                </div>
-                {/* Play button */}
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-600 shadow-2xl transition-transform group-hover:scale-110">
-                  <Play className="ml-1 h-12 w-12 fill-white text-white" />
-                </div>
-                <p className="mt-6 text-sm text-white/70">
-                  Click to start the official video
-                </p>
-              </button>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-black text-white">
-                {/* Replace with real video iframe */}
-                <video
-                  controls
-                  autoPlay
-                  className="h-full w-full"
-                  poster=""
-                >
-                  <source src="" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            )}
-          </div>
+        {/* Video player (vturb smartplayer) */}
+        <div className="mt-6 overflow-hidden rounded-xl shadow-2xl ring-1 ring-black/10">
+          <vturb-smartplayer
+            id="vid-69f140ee2e62e594e34723cd"
+            style={{ display: "block", margin: "0 auto", width: "100%" }}
+          />
         </div>
 
         {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
