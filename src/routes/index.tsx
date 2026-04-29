@@ -50,9 +50,9 @@ const US_STATES = [
 
 function Stepper({ current }: { current: 1 | 2 | 3 }) {
   const steps = [
-    { n: 1, label: "Data" },
-    { n: 2, label: "Verify" },
-    { n: 3, label: "Result" },
+    { n: 1, label: "Dados" },
+    { n: 2, label: "Verificar" },
+    { n: 3, label: "Resultado" },
   ];
   const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
