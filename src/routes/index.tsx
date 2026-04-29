@@ -393,8 +393,8 @@ function Index() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-white">
+      {/* Footer — hidden on mobile during verify */}
+      <footer className={`border-t border-border bg-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
