@@ -3,7 +3,6 @@
 //   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, cloudflare (build-only),
 //     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
 //     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Pre-render (SSG) the funnel routes at build time so they ship as static HTML.
@@ -12,15 +11,15 @@ export default defineConfig({
   tanstackStart: {
     prerender: {
       enabled: true,
-      crawlLinks: false,
+      crawlLinks: true,
       retryCount: 2,
     },
     pages: [
-      { path: "/", prerender: { enabled: true } },
-      { path: "/vsl", prerender: { enabled: true } },
-      { path: "/upsell1", prerender: { enabled: true } },
-      { path: "/upsell2", prerender: { enabled: true } },
-      { path: "/upsell3", prerender: { enabled: true } },
+      { path: "/" },
+      { path: "/vsl" },
+      { path: "/upsell1" },
+      { path: "/upsell2" },
+      { path: "/upsell3" },
     ],
   },
 });
