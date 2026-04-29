@@ -20,6 +20,9 @@ declare module "react" {
 }
 
 export const Route = createFileRoute("/vsl")({
+  // SSG: pre-render this route at build time so it serves as static HTML —
+  // near-zero TTFB even if the SSR layer goes down.
+  ssr: true,
   head: () => ({
     meta: [
       { title: "Watch the Official Video — Official Check" },
@@ -40,11 +43,18 @@ export const Route = createFileRoute("/vsl")({
         rel: "preload",
         href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
         as: "script",
+        fetchpriority: "high",
       },
       {
         rel: "preload",
         href: "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js",
         as: "script",
+      },
+      {
+        rel: "preload",
+        href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg",
+        as: "image",
+        fetchpriority: "high",
       },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
