@@ -144,7 +144,7 @@ function VslPage() {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen overflow-x-hidden"
       style={
         {
           backgroundColor: "#f3f6fa",
@@ -153,30 +153,40 @@ function VslPage() {
       }
     >
       {/* Header */}
-      <header className="bg-[var(--brand)] text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden>🇺🇸</span>
-            <div className="leading-tight">
-              <div className="text-base font-bold">Official Check</div>
-              <div className="text-xs text-white/70">
+      <header
+        className="bg-[var(--brand)] text-white"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <span className="text-xl sm:text-2xl" aria-hidden>🇺🇸</span>
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
+              <div className="truncate text-[10px] text-white/70 sm:text-xs">
                 Verify if there are restitutions
               </div>
             </div>
           </Link>
-          <nav className="flex items-center gap-6 text-sm">
+          <nav className="hidden items-center gap-6 text-sm sm:flex">
             <Link to="/" className="hover:text-white/80">Home</Link>
             <a href="#" className="hover:text-white/80">About</a>
             <a href="#" className="hover:text-white/80">Contact</a>
           </nav>
+          {/* Mobile: only Home link */}
+          <Link
+            to="/"
+            className="rounded-md px-2 py-1 text-xs font-semibold text-white/90 hover:text-white sm:hidden"
+          >
+            Home
+          </Link>
         </div>
 
         {/* Hero */}
-        <div className="mx-auto max-w-6xl px-6 pb-10 pt-6">
-          <h1 className="text-2xl font-bold leading-snug md:text-3xl">
+        <div className="mx-auto max-w-6xl px-4 pb-6 pt-4 sm:px-6 sm:pb-10 sm:pt-6">
+          <h1 className="text-xl font-bold leading-snug sm:text-2xl md:text-3xl">
             Welcome
           </h1>
-          <p className="mt-2 text-sm text-white/80">
+          <p className="mt-2 text-xs text-white/80 sm:text-sm">
             You have{" "}
             <span className="font-semibold text-emerald-300">$2,350.00</span>{" "}
             available for claim.
@@ -185,17 +195,17 @@ function VslPage() {
       </header>
 
       {/* Video section */}
-      <main className="mx-auto max-w-4xl px-4 py-10">
+      <main className="mx-auto max-w-4xl px-3 py-6 sm:px-4 sm:py-10">
         <div className="text-center">
-          <p className="text-base font-semibold text-foreground md:text-lg">
+          <p className="text-sm font-semibold text-foreground sm:text-base md:text-lg">
             Watch the official video:{" "}
             <span className="underline">"How to Receive $2,350.00"</span>
           </p>
           <ArrowDown className="mx-auto mt-3 h-5 w-5 animate-bounce text-muted-foreground" />
         </div>
 
-        {/* Video player (vturb smartplayer) */}
-        <div className="mt-6 overflow-hidden rounded-xl shadow-2xl ring-1 ring-black/10">
+        {/* Video player (vturb smartplayer) — full-bleed on mobile */}
+        <div className="mt-4 -mx-3 overflow-hidden shadow-2xl ring-1 ring-black/10 sm:mx-0 sm:mt-6 sm:rounded-xl">
           <vturb-smartplayer
             id="ab-69f140ee2e62e594e34723cd"
             style={{ display: "block", margin: "0 auto", width: "100%" }}
@@ -203,29 +213,30 @@ function VslPage() {
         </div>
 
         {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
-        <div className="mt-10 flex flex-col items-center justify-center">
+        <div className="mt-8 flex flex-col items-center justify-center sm:mt-10">
           {ctaUnlocked ? (
             <a
               href="https://www.xamericansystem.online/-us"
               target="_blank"
               rel="noopener noreferrer"
-              className="animate-in fade-in zoom-in duration-500 transition-transform hover:scale-105 active:scale-95"
+              className="block w-full max-w-md animate-in fade-in zoom-in px-2 duration-500 transition-transform hover:scale-105 active:scale-95"
               aria-label="Exclusive offer — only now"
             >
               <img
                 src={exclusiveOfferBtn}
                 alt="Exclusive Offer! Only Now"
-                className="h-auto w-full max-w-md drop-shadow-xl"
+                className="mx-auto h-auto w-full drop-shadow-xl"
+                loading="eager"
               />
             </a>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-6 py-4">
+            <div className="flex flex-col items-center justify-center gap-4 py-4 sm:gap-6">
               <div
-                className="h-14 w-14 animate-spin rounded-full border-[3px] border-[var(--brand)]/20 border-t-[var(--brand)]"
+                className="h-12 w-12 animate-spin rounded-full border-[3px] border-[var(--brand)]/20 border-t-[var(--brand)] sm:h-14 sm:w-14"
                 role="status"
                 aria-label="Loading"
               />
-              <p className="text-xl font-bold text-[var(--brand)] md:text-2xl">
+              <p className="text-center text-lg font-bold text-[var(--brand)] sm:text-xl md:text-2xl">
                 Required to Follow
               </p>
             </div>
@@ -233,7 +244,7 @@ function VslPage() {
         </div>
 
         {/* Microcopy */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
           <span className="flex items-center gap-1">
             <Lock className="h-3 w-3" /> Secure session
           </span>
@@ -253,14 +264,17 @@ function VslPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+      <footer
+        className="border-t border-border bg-white"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6 sm:py-8">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
               <span className="text-lg" aria-hidden>🇺🇸</span>
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
               <a href="#" className="hover:text-foreground">Terms of Use</a>
               <a href="#" className="hover:text-foreground">Contact</a>
