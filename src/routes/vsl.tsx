@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
-import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
+
 import { FlagUS } from "../components/Flag";
 
 // Time in seconds when the pitch begins and the CTA unlocks
