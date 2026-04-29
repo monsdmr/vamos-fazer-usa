@@ -128,6 +128,7 @@ function Index() {
   
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
+  const authorizedRef = useRef<HTMLInputElement | null>(null);
 
   // Preload the /vsl route + player + thumbnail as soon as we enter step 2.
   // By the time the user lands on step 3 and clicks, everything is cached.
