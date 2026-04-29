@@ -155,6 +155,11 @@ function Index() {
   };
 
 
+  // While verifying (step 2) on mobile, hide all surrounding chrome
+  // (header, hero, testimonials, footer) and center the loader so the
+  // user stays focused until the VSL.
+  const focusMode = step === 2;
+
   return (
     <div
       className="min-h-screen"
@@ -165,8 +170,8 @@ function Index() {
         } as React.CSSProperties
       }
     >
-      {/* Header */}
-      <header className="bg-[var(--brand)] text-white">
+      {/* Header — hidden on mobile during verify */}
+      <header className={`bg-[var(--brand)] text-white ${focusMode ? "hidden md:block" : ""}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl" aria-hidden>🇺🇸</span>
