@@ -125,7 +125,7 @@ function Index() {
   const [error, setError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
-  const [countdown, setCountdown] = useState(3);
+  
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
 
@@ -174,23 +174,7 @@ function Index() {
     };
   }, [step, router]);
 
-  // Countdown + auto-redirect on step 3
-  useEffect(() => {
-    if (step !== 3) return;
-    setCountdown(3);
-    const t = setInterval(() => {
-      setCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(t);
-          // Auto-navigate to /vsl
-          router.navigate({ to: "/vsl" }).catch(() => {});
-          return 0;
-        }
-        return c - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, [step, router]);
+  // No auto-redirect — user must click "Watch Video" button.
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -415,9 +399,7 @@ function Index() {
                 className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90"
               >
                 <Play className="h-4 w-4" />
-                {countdown > 0
-                  ? `Watch Official Video — Redirecting in ${countdown}…`
-                  : "Opening Official Video…"}
+                Watch Official Video: How to Receive
               </Link>
               <button
                 type="button"
