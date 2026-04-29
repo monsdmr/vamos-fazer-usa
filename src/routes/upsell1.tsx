@@ -39,7 +39,7 @@ export const Route = createFileRoute("/upsell1")({
 });
 
 function UpsellPage() {
-  const [ctaUnlocked, setCtaUnlocked] = useState(false);
+  const ctaUnlocked = useVturbWatchTime(`vid-${PLAYER_ID}`, CTA_REVEAL_SECONDS);
 
   useEffect(() => {
     const ID = "vturb-upsell1-script";
@@ -51,46 +51,6 @@ function UpsellPage() {
     s.async = true;
     document.head.appendChild(s);
   }, []);
-
-  // Sync CTA reveal with actual video playback time (3:40)
-  useEffect(() => {
-    if (ctaUnlocked) return;
-
-    let media: HTMLMediaElement | null = null;
-    let pollId: number | null = null;
-
-    const onTimeUpdate = () => {
-      if (media && media.currentTime >= CTA_REVEAL_SECONDS) {
-        setCtaUnlocked(true);
-      }
-    };
-
-    const tryFind = () => {
-      const player = document.getElementById(`vid-${PLAYER_ID}`);
-      const root: ParentNode | null =
-        (player && (player as HTMLElement & { shadowRoot?: ShadowRoot | null }).shadowRoot) ||
-        player ||
-        document;
-      const found = root.querySelector("video, audio") as HTMLMediaElement | null;
-      if (found) {
-        media = found;
-        media.addEventListener("timeupdate", onTimeUpdate);
-        onTimeUpdate();
-        if (pollId !== null) {
-          window.clearInterval(pollId);
-          pollId = null;
-        }
-      }
-    };
-
-    pollId = window.setInterval(tryFind, 500);
-    tryFind();
-
-    return () => {
-      if (pollId !== null) window.clearInterval(pollId);
-      if (media) media.removeEventListener("timeupdate", onTimeUpdate);
-    };
-  }, [ctaUnlocked]);
 
 
   return (
