@@ -21,7 +21,7 @@ export function UpsellFooter() {
             <ul className="mt-4 space-y-2 text-sm">
               <li>
                 <a
-                  href={EXPLODELY_HOME}
+                  href={EARNINGS_DISCLAIMER}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
@@ -48,7 +48,7 @@ export function UpsellFooter() {
               </li>
               <li>
                 <a
-                  href={EXPLODELY_HOME}
+                  href={FTC_COMPLIANCE}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
@@ -74,7 +74,9 @@ export function UpsellFooter() {
               </li>
               <li>
                 <a
-                  href={`mailto:${SUPPORT_EMAIL}?subject=Billing%20Support`}
+                  href={BILLING_SUPPORT}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="underline underline-offset-4 hover:text-white/80"
                 >
                   Billing Support
