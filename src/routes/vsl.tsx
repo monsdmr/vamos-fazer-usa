@@ -4,7 +4,7 @@ import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 import exclusiveOfferBtn from "@/assets/exclusive-offer-button.png";
 
 // Time in seconds when the pitch begins and the CTA unlocks
-const PITCH_REVEAL_SECONDS = 600; // 10 minutes — adjust to match your VSL pitch moment
+const PITCH_REVEAL_SECONDS = 21 * 60 + 1; // 21:01 — pitch moment in the VSL
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
