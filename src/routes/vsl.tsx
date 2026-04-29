@@ -221,15 +221,16 @@ function VslPage() {
               href="https://go.centerpag.com/PPU38CQA79I"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full max-w-md animate-in fade-in zoom-in px-2 duration-500 transition-transform hover:scale-105 active:scale-95"
               aria-label="Exclusive offer — only now"
+              className="exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg"
+              style={{
+                background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
+              }}
             >
-              <img
-                src={exclusiveOfferBtn}
-                alt="Exclusive Offer! Only Now"
-                className="mx-auto h-auto w-full drop-shadow-xl"
-                loading="eager"
-              />
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+              <span className="relative z-10 drop-shadow-sm">
+                EXCLUSIVE OFFER! ONLY NOW
+              </span>
             </a>
           ) : (
             <div className="flex flex-col items-center justify-center gap-4 py-4 sm:gap-6">
