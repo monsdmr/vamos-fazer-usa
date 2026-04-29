@@ -19,6 +19,7 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
 
     let cancelled = false;
     let mediaEl: HTMLMediaElement | null = null;
+    const attachedPlayers = new WeakSet<object>();
     const intervals: number[] = [];
 
     const unlock = () => {
@@ -26,7 +27,46 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
     };
 
     const checkTime = (t: unknown) => {
-      if (typeof t === "number" && t >= revealSeconds) unlock();
+      const seconds = typeof t === "number" ? t : Number(t);
+      if (Number.isFinite(seconds) && seconds >= revealSeconds) unlock();
+    };
+
+    const playerMatches = (inst: SmartplayerCompatInstance) => {
+      const ids = [
+        inst.id,
+        inst.instance?.id,
+        inst.instance?.getAttribute?.("id"),
+        inst.instance?.getAttribute?.("original-id"),
+        inst.analytics?.player?.options?.id,
+      ].filter(Boolean);
+
+      return (
+        ids.length === 0 ||
+        ids.includes(playerElementId) ||
+        ids.includes(playerElementId.replace(/^vid-/, ""))
+      );
+    };
+
+    const getSmartplayerInstances = (): SmartplayerCompatInstance[] => {
+      const instances = (window as unknown as SmartplayerCompatWindow).smartplayer?.instances;
+      if (!instances) return [];
+      return Array.isArray(instances) ? instances : Object.values(instances);
+    };
+
+    const attachSmartplayer = (inst: SmartplayerCompatInstance) => {
+      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst)) return;
+      attachedPlayers.add(inst);
+
+      inst.on?.("timeupdate", (p) => {
+        checkTime(typeof p === "number" ? p : p?.currentTime ?? p?.time);
+      });
+
+      inst.instance?.addEventListener?.("video:timeupdate", (event) => {
+        checkTime((event as CustomEvent<{ time?: number }>).detail?.time);
+      });
+
+      checkTime(inst.video?.currentTime);
+      checkTime(inst.instance?.video?.currentTime);
     };
 
     const onTimeUpdate = () => {
@@ -61,30 +101,19 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
     const poll = window.setInterval(() => {
       if (cancelled) return;
 
-      const sp = (window as unknown as {
-        smartplayer?: {
-          instances?: Record<
-            string,
-            {
-              on?: (
-                ev: string,
-                cb: (p: { currentTime?: number } | number) => void
-              ) => void;
-              getCurrentTime?: () => number;
-            }
-          >;
-        };
-      }).smartplayer;
-      const inst = sp?.instances?.[playerElementId];
-      if (inst && typeof inst.on === "function") {
-        inst.on("timeupdate", (p) => {
-          const t = typeof p === "number" ? p : p?.currentTime;
-          checkTime(t);
-        });
+      const players = getSmartplayerInstances();
+      if (players.length > 0) {
+        players.forEach(attachSmartplayer);
         const tick = window.setInterval(() => {
           if (cancelled) return;
-          checkTime(inst.getCurrentTime?.());
-        }, 1000);
+          getSmartplayerInstances().forEach((inst) => {
+            attachSmartplayer(inst);
+            if (playerMatches(inst)) {
+              checkTime(inst.video?.currentTime);
+              checkTime(inst.instance?.video?.currentTime);
+            }
+          });
+        }, 500);
         intervals.push(tick);
         window.clearInterval(poll);
         return;
@@ -112,3 +141,22 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
 
   return unlocked;
 }
+
+type SmartplayerCompatInstance = {
+  id?: string;
+  on?: (ev: string, cb: (p: { currentTime?: number; time?: number } | number) => void) => void;
+  video?: { currentTime?: number };
+  analytics?: { player?: { options?: { id?: string } } };
+  instance?: HTMLElement & {
+    id?: string;
+    video?: { currentTime?: number };
+    addEventListener?: HTMLElement["addEventListener"];
+    getAttribute?: HTMLElement["getAttribute"];
+  };
+};
+
+type SmartplayerCompatWindow = {
+  smartplayer?: {
+    instances?: SmartplayerCompatInstance[] | Record<string, SmartplayerCompatInstance>;
+  };
+};
