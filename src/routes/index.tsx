@@ -315,6 +315,7 @@ function Index() {
 
               <label className="flex items-start gap-2 rounded-md bg-muted/40 p-3 text-sm text-foreground">
                 <input
+                  ref={authorizedRef}
                   type="checkbox"
                   checked={authorized}
                   onChange={(e) => setAuthorized(e.target.checked)}
