@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
  * Unlocks when the VTurb smartplayer reaches `revealSeconds` of ACTUAL playback time
  * (not page-open time). Combines 3 strategies for reliability across shadow DOM /
  * cross-origin iframes / late media mounts:
- *   1) window.smartplayer.instances[playerElementId] events + getCurrentTime()
+ *   1) window.smartplayer.instances events + live video.currentTime polling
  *   2) Recursive shadow-DOM scan for the underlying <video>/<audio>
  *   3) currentTime polling as a safety net
  *
