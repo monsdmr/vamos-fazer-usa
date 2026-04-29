@@ -70,11 +70,57 @@ function VslPage() {
 
   // Player script is injected via the route's head.scripts (SSR) for fastest load.
 
-  // Reveal the CTA after the configured pitch moment
+  // Reveal the CTA when the VTurb player reaches the pitch moment in the video.
+  // We poll for the player element + media (video/audio) and listen to timeupdate.
   useEffect(() => {
     if (ctaUnlocked) return;
-    const timer = setTimeout(() => setCtaUnlocked(true), PITCH_REVEAL_SECONDS * 1000);
-    return () => clearTimeout(timer);
+
+    let cancelled = false;
+    let mediaEl: HTMLMediaElement | null = null;
+    let pollId: number | null = null;
+
+    const onTimeUpdate = () => {
+      if (mediaEl && mediaEl.currentTime >= PITCH_REVEAL_SECONDS) {
+        setCtaUnlocked(true);
+      }
+    };
+
+    const attach = (el: HTMLMediaElement) => {
+      mediaEl = el;
+      el.addEventListener("timeupdate", onTimeUpdate);
+      // In case the user is already past the mark (resume)
+      onTimeUpdate();
+    };
+
+    const tryFind = () => {
+      if (cancelled) return;
+      const player = document.getElementById("ab-69f140ee2e62e594e34723cd");
+      // The smartplayer is a custom element that renders a <video> internally.
+      // It may use shadow DOM, so we check both light and shadow roots.
+      const root: ParentNode | null =
+        (player as unknown as { shadowRoot?: ShadowRoot } | null)?.shadowRoot ??
+        player;
+      const media =
+        (root?.querySelector?.("video, audio") as HTMLMediaElement | null) ??
+        (document.querySelector("video, audio") as HTMLMediaElement | null);
+
+      if (media) {
+        attach(media);
+        if (pollId !== null) {
+          window.clearInterval(pollId);
+          pollId = null;
+        }
+      }
+    };
+
+    pollId = window.setInterval(tryFind, 500);
+    tryFind();
+
+    return () => {
+      cancelled = true;
+      if (pollId !== null) window.clearInterval(pollId);
+      if (mediaEl) mediaEl.removeEventListener("timeupdate", onTimeUpdate);
+    };
   }, [ctaUnlocked]);
 
   return (
