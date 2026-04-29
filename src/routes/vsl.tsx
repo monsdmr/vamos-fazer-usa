@@ -76,7 +76,9 @@ const PLAYER_SRC =
   "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 function VslPage() {
-  const [ctaUnlocked, setCtaUnlocked] = useState(false);
+  // In dev/preview, show the CTA immediately so we can review the layout.
+  // In production, it stays hidden until the video reaches the unlock minute.
+  const [ctaUnlocked, setCtaUnlocked] = useState(import.meta.env.DEV);
 
   // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
   // Doing this in head.scripts (SSR) breaks on preview refresh / HMR because the script
