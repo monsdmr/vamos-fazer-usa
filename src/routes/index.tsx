@@ -179,10 +179,21 @@ function Index() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !stateVal || !authorized) {
+    // Read live values from the DOM as a fallback in case React state is stale
+    // (e.g. mobile autofill or race between checkbox toggle and submit click).
+    const liveName = (nameInputRef.current?.value ?? name).trim();
+    const liveState = stateSelectRef.current?.value ?? stateVal;
+    const liveAuthorized = authorizedRef.current?.checked ?? authorized;
+
+    if (!liveName || !liveState || !liveAuthorized) {
       setError("Please enter your name, choose a state, and authorize verification.");
       return;
     }
+    // Sync state back in case fallback values were used
+    if (liveName !== name) setName(liveName);
+    if (liveState !== stateVal) setStateVal(liveState);
+    if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
+
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
     stateSelectRef.current?.blur();
