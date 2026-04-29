@@ -103,17 +103,18 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
       if (cancelled) return;
 
       const players = getSmartplayerInstances();
-      if (players.length > 0) {
-        players.forEach((inst) => attachSmartplayer(inst, players.length));
+      const matchingPlayers = players.filter((inst) => playerMatches(inst, players.length));
+      if (matchingPlayers.length > 0) {
+        matchingPlayers.forEach((inst) => attachSmartplayer(inst, players.length));
         const tick = window.setInterval(() => {
           if (cancelled) return;
           const currentPlayers = getSmartplayerInstances();
-          currentPlayers.forEach((inst) => {
-            attachSmartplayer(inst, currentPlayers.length);
-            if (playerMatches(inst, currentPlayers.length)) {
+          currentPlayers
+            .filter((inst) => playerMatches(inst, currentPlayers.length))
+            .forEach((inst) => {
+              attachSmartplayer(inst, currentPlayers.length);
               checkTime(inst.video?.currentTime);
               checkTime(inst.instance?.video?.currentTime);
-            }
           });
         }, 500);
         intervals.push(tick);
