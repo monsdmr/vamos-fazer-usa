@@ -39,7 +39,7 @@ export const Route = createFileRoute("/upsell2")({
 });
 
 function Upsell2Page() {
-  const ctaUnlocked = useVturbWatchTime(`vid-${PLAYER_ID}`, CTA_REVEAL_SECONDS);
+  const ctaUnlocked = useVturbWatchTime([`vid-${PLAYER_ID}`, PLAYER_ID], CTA_REVEAL_SECONDS);
 
   useEffect(() => {
     const ID = "vturb-upsell2-script";
