@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { UpsellFooter } from "@/components/UpsellFooter";
 
 // Reveal CTA after the user has actually watched this many seconds of the video
 const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
@@ -179,47 +180,7 @@ function UpsellPage() {
         </section>
       )}
 
-      {/* Disclaimer footer (matches Strativa reference) */}
-      <footer
-        className="mt-auto border-t border-slate-200 bg-slate-50"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <div className="mx-auto max-w-3xl px-4 py-8 text-center text-[11px] leading-relaxed text-slate-500 sm:text-xs">
-          {/* Functional CTAs mirroring the page's main buttons */}
-          <div className="mb-6 flex flex-col items-center gap-3">
-            <a
-              href={YES_URL}
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#16a34a] hover:bg-[#15803d] text-white font-bold uppercase tracking-wide text-sm shadow-md transition-transform active:scale-[0.98]"
-            >
-              INCREASE YOUR BENEFITS! NOW ONLY!!!
-            </a>
-            <a href={NO_URL} className="text-slate-400 hover:text-slate-600 underline text-xs">
-              I don't want to increase my benefit.
-            </a>
-          </div>
-
-          <p className="font-semibold text-slate-700">
-            © {new Date().getFullYear()} American System. All rights reserved.
-          </p>
-          <p className="mt-3">
-            Explodely.com is the trusted gateway for equipevgemp.tech. Explodely is a
-            trademark of Explodely LLC, a US Corporation located at 1317 Edgewater
-            Drive Suite #4648, Orlando FL, 32804, United States and used by permission.
-            Explodely's role as a gateway provider does not constitute an endorsement,
-            approval or review of this product(s) or any claim, statement or opinion
-            used in promotion of this product(s). If you aren't completely satisfied
-            with your purchase, or need order support, please contact Explodely here:{" "}
-            <a
-              href="http://explodely.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-slate-700"
-            >
-              http://explodely.com/
-            </a>
-          </p>
-        </div>
-      </footer>
+      <UpsellFooter />
 
       <style>{`
         @keyframes upsellPulse {
