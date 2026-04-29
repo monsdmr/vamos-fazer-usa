@@ -170,7 +170,7 @@ function VslPage() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <span className="text-xl sm:text-2xl" aria-hidden>🇺🇸</span>
+            <FlagUS size={24} />
             <div className="min-w-0 leading-tight">
               <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
               <div className="truncate text-[10px] text-white/70 sm:text-xs">
@@ -178,18 +178,7 @@ function VslPage() {
               </div>
             </div>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm sm:flex">
-            <Link to="/" className="hover:text-white/80">Home</Link>
-            <a href="#" className="hover:text-white/80">About</a>
-            <a href="#" className="hover:text-white/80">Contact</a>
-          </nav>
-          {/* Mobile: only Home link */}
-          <Link
-            to="/"
-            className="rounded-md px-2 py-1 text-xs font-semibold text-white/90 hover:text-white sm:hidden"
-          >
-            Home
-          </Link>
+          {/* Nav removed to keep focus on the video */}
         </div>
 
         {/* Hero */}
