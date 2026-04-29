@@ -137,8 +137,28 @@
     border-color: var(--color-border);
   }
 
+  html {
+    /* Prevent iOS Safari from auto-zooming text on rotation */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Avoid horizontal scroll caused by stray overflow */
+    overflow-x: hidden;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    overflow-x: hidden;
+  }
+
+  /* iOS Safari zooms into any input/select/textarea whose font-size is < 16px.
+     Force 16px on mobile so focus never triggers a zoom. */
+  @media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
 }
+
