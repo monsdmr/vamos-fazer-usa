@@ -338,6 +338,7 @@ function Index() {
 
               <Link
                 to="/vsl"
+                preload="intent"
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow hover:opacity-90"
               >
                 <Play className="h-4 w-4" /> Watch Official Video: How to Receive
