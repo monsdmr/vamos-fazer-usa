@@ -115,7 +115,7 @@ export function useVturbWatchTime(playerElementId: string, revealSeconds: number
               attachSmartplayer(inst, currentPlayers.length);
               checkTime(inst.video?.currentTime);
               checkTime(inst.instance?.video?.currentTime);
-          });
+            });
         }, 500);
         intervals.push(tick);
         window.clearInterval(poll);
