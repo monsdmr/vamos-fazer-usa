@@ -87,20 +87,35 @@ function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
   const ctaUnlocked = watchedTimeUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
-    "https://www.checkout-ds24.com/product/687076",
+    "https://www.digistore24.com/product/687076",
   );
 
-  // Build the Digistore checkout URL with first_name / last_name prefilled
-  // from the Full Name the user entered on the home page.
-  // Also forward marketing/tracking query params (utm_*, fbclid, gclid, ttclid,
-  // msclkid, etc.) so Tag Manager and pixel events keep working — but the
-  // Referer header itself is stripped (meta name="referrer" + rel="noreferrer"),
+  // Build the Digistore checkout URL.
+  // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
+  //   so Digistore postbacks can attribute the sale to the correct ad click.
+  // - Forwards marketing params (utm_*, fbclid, gclid, ttclid, msclkid, etc.)
+  //   so Tag Manager and pixel events keep working.
+  // - Prefills first_name / last_name from the Full Name entered on page 1.
+  // The Referer header itself is stripped (meta name="referrer" + rel="noreferrer"),
   // so Digistore cannot see the originating domain.
   useEffect(() => {
     try {
-      const url = new URL("https://www.checkout-ds24.com/product/687076");
+      const url = new URL("https://www.digistore24.com/product/687076");
 
-      // 1) Forward tracking params from the current URL (and persist them so
+      // 1) Set sid1 from click_id stored on page 1 (fbclid || ttclid).
+      let clickId = "";
+      try {
+        clickId = sessionStorage.getItem("click_id") || "";
+      } catch {}
+      if (!clickId) {
+        const incomingNow = new URLSearchParams(window.location.search);
+        clickId = incomingNow.get("fbclid") || incomingNow.get("ttclid") || "";
+      }
+      if (clickId) {
+        url.searchParams.set("sid1", clickId);
+      }
+
+      // 2) Forward tracking params from the current URL (and persist them so
       // they survive internal navigation between / and /vsl).
       const TRACKING_KEYS = [
         "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
@@ -123,8 +138,12 @@ function VslPage() {
         sessionStorage.setItem("oc_tracking", JSON.stringify(stored));
       } catch {}
 
-      // 2) Prefill first_name / last_name from the home form.
-      const fullName = (sessionStorage.getItem("oc_full_name") || "").trim();
+      // 3) Prefill first_name / last_name from the home form.
+      const fullName = (
+        sessionStorage.getItem("lead_name") ||
+        sessionStorage.getItem("oc_full_name") ||
+        ""
+      ).trim();
       if (fullName) {
         const parts = fullName.split(/\s+/);
         const firstName = parts.shift() || "";
