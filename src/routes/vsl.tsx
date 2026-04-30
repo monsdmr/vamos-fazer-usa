@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 
 import { FlagUS } from "../components/Flag";
@@ -86,6 +86,25 @@ const PLAYER_SRC =
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
   const ctaUnlocked = watchedTimeUnlocked;
+  const [checkoutUrl, setCheckoutUrl] = useState(
+    "https://www.checkout-ds24.com/product/687076",
+  );
+
+  // Build the Digistore checkout URL with first_name / last_name prefilled
+  // from the Full Name the user entered on the home page.
+  useEffect(() => {
+    try {
+      const fullName = (sessionStorage.getItem("oc_full_name") || "").trim();
+      if (!fullName) return;
+      const parts = fullName.split(/\s+/);
+      const firstName = parts.shift() || "";
+      const lastName = parts.join(" ");
+      const url = new URL("https://www.checkout-ds24.com/product/687076");
+      if (firstName) url.searchParams.set("first_name", firstName);
+      if (lastName) url.searchParams.set("last_name", lastName);
+      setCheckoutUrl(url.toString());
+    } catch {}
+  }, []);
 
   // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
   // Doing this in head.scripts (SSR) breaks on preview refresh / HMR because the script
@@ -170,7 +189,7 @@ function VslPage() {
         <div className="mt-8 flex flex-col items-center justify-center sm:mt-10">
           {ctaUnlocked ? (
             <a
-              href="https://www.checkout-ds24.com/product/687076"
+              href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Exclusive offer — only now"
