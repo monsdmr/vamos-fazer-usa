@@ -80,14 +80,14 @@ function Upsell2Page() {
       <UpsellProgress currentStep={2} />
 
       {/* Title */}
-      <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
-        <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-slate-500">
+      <section className="mx-auto w-full max-w-3xl px-4 pt-6 sm:pt-12 text-center">
+        <p className="text-[11px] sm:text-sm font-semibold uppercase tracking-widest text-slate-500">
           Step 2 of 3 — Payment Acceleration
         </p>
-        <h1 className="mt-2 text-2xl sm:text-4xl font-extrabold tracking-tight">
+        <h1 className="mt-2 text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
           Activate the Fast Payment Channel
         </h1>
-        <p className="mt-3 text-slate-500 text-base sm:text-lg">
+        <p className="mt-3 text-slate-500 text-sm sm:text-lg">
           Watch the short video below to enable faster processing.
         </p>
       </section>
