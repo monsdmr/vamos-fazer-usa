@@ -195,6 +195,8 @@ function Index() {
     // Read live values from the DOM as a fallback in case React state is stale
     // (e.g. mobile autofill or race between checkbox toggle and submit click).
     const liveName = (nameInputRef.current?.value ?? name).trim();
+    const livePhoneRaw = phoneInputRef.current?.value ?? phone;
+    const livePhoneDigits = livePhoneRaw.replace(/\D/g, "");
     const liveState = stateSelectRef.current?.value ?? stateVal;
     const liveAuthorized = authorizedRef.current?.checked ?? authorized;
 
@@ -202,22 +204,31 @@ function Index() {
       setError("Please enter your name, choose a state, and authorize verification.");
       return;
     }
+    if (livePhoneDigits.length !== 10) {
+      setError("Please enter a valid US phone number: (XXX) XXX-XXXX.");
+      return;
+    }
     // Sync state back in case fallback values were used
     if (liveName !== name) setName(liveName);
     if (liveState !== stateVal) setStateVal(liveState);
     if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
+    const formattedPhone = formatUSPhone(livePhoneDigits);
+    if (formattedPhone !== phone) setPhone(formattedPhone);
 
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
+    phoneInputRef.current?.blur();
     stateSelectRef.current?.blur();
     if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
     setError("");
-    // Persist name for later checkout prefill
+    // Persist name + phone for later checkout prefill
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("oc_full_name", liveName);
+        sessionStorage.setItem("oc_phone", formattedPhone);
+        sessionStorage.setItem("oc_phone_e164", `+1${livePhoneDigits}`);
       }
     } catch {}
     setStep(2);
