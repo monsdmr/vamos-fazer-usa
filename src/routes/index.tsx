@@ -325,9 +325,19 @@ function Index() {
       document.activeElement.blur();
     }
     setError("");
-    // Persist name + phone for later checkout prefill
+    // Capture click_id (Facebook / TikTok) from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const clickId = urlParams.get("fbclid") || urlParams.get("ttclid") || "";
+
+    // Persist lead data for the next step (VSL / checkout)
     try {
       if (typeof window !== "undefined") {
+        // Canonical keys consumed by /vsl checkout
+        sessionStorage.setItem("lead_phone", formattedPhone);
+        sessionStorage.setItem("lead_name", liveName);
+        sessionStorage.setItem("lead_state", liveState);
+        sessionStorage.setItem("click_id", clickId);
+        // Legacy/extra keys still used by other components for prefill
         sessionStorage.setItem("oc_full_name", liveName);
         sessionStorage.setItem("oc_phone", formattedPhone);
         sessionStorage.setItem("oc_phone_e164", phoneE164);
@@ -339,8 +349,6 @@ function Index() {
       if (typeof window !== "undefined") {
         const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
         w.dataLayer = w.dataLayer || [];
-        const urlParams = new URLSearchParams(window.location.search);
-        const clickId = urlParams.get("fbclid") || urlParams.get("ttclid") || "";
         w.dataLayer.push({
           event: "lead_submitted",
           lead_phone: formattedPhone,
