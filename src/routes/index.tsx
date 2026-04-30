@@ -223,12 +223,12 @@ function Index() {
     >
       {/* Header — hidden on mobile during verify */}
       <header className={`bg-[var(--brand)] text-white ${focusMode ? "hidden md:block" : ""}`}>
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <FlagUS size={28} />
-            <div className="leading-tight">
-              <div className="text-base font-bold">Official Check</div>
-              <div className="text-xs text-white/70">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <FlagUS size={24} />
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
+              <div className="truncate text-[10px] text-white/70 sm:text-xs">
                 Verify if there are restitutions
               </div>
             </div>
@@ -237,18 +237,18 @@ function Index() {
         </div>
 
         {/* Hero */}
-        <div className="mx-auto max-w-6xl px-6 pb-12 pt-6">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
+        <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/90 sm:px-3 sm:text-xs">
             <Suspense fallback={<IconFallback />}>
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
             </Suspense>
             Official verification system
           </div>
-          <h1 className="text-2xl font-bold leading-snug md:text-3xl">
+          <h1 className="text-xl font-bold leading-snug sm:text-2xl md:text-3xl">
             Check if there are restitutions in your name —
             <span className="text-emerald-300"> response in 10 seconds</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-white/70">
+          <p className="mt-2 max-w-2xl text-xs text-white/70 sm:text-sm">
             Enter your details below to securely check eligibility. Your data is
             encrypted and never shared with third parties.
           </p>
@@ -257,13 +257,13 @@ function Index() {
 
       {/* Card */}
       <main
-        className={`mx-auto max-w-3xl px-4 pb-12 ${
+        className={`mx-auto max-w-3xl px-3 pb-10 sm:px-4 sm:pb-12 ${
           focusMode
             ? "flex min-h-screen items-center justify-center md:-mt-6 md:block md:min-h-0"
             : "-mt-6"
         }`}
       >
-        <div className="w-full rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
+        <div className="w-full rounded-xl bg-white p-4 shadow-lg ring-1 ring-black/5 sm:p-6 md:p-8">
           <Stepper current={step} />
 
           {step === 1 && (
