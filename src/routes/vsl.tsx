@@ -87,7 +87,7 @@ function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
   const ctaUnlocked = watchedTimeUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
-    "https://www.digistore24.com/product/687076",
+    "https://www.checkout-ds24.com/product/687076",
   );
 
   // Build the Digistore checkout URL.
@@ -100,7 +100,7 @@ function VslPage() {
   // so Digistore cannot see the originating domain.
   useEffect(() => {
     try {
-      const url = new URL("https://www.digistore24.com/product/687076");
+      const url = new URL("https://www.checkout-ds24.com/product/687076");
 
       // 1) Set sid1 from click_id stored on page 1 (fbclid || ttclid).
       let clickId = "";
