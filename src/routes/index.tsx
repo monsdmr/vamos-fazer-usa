@@ -279,24 +279,43 @@ function Index() {
     // (e.g. mobile autofill or race between checkbox toggle and submit click).
     const liveName = (nameInputRef.current?.value ?? name).trim();
     const livePhoneRaw = phoneInputRef.current?.value ?? phone;
-    const livePhoneDigits = livePhoneRaw.replace(/\D/g, "");
     const liveState = stateSelectRef.current?.value ?? stateVal;
     const liveAuthorized = authorizedRef.current?.checked ?? authorized;
 
-    if (!liveName || !liveState || !liveAuthorized) {
-      setError("Please enter your name, choose a state, and authorize verification.");
+    // Validate name + state + consent first
+    if (!liveName) {
+      setError("Please enter your full name.");
       return;
     }
-    if (livePhoneDigits.length !== 10) {
-      setError("Please enter a valid US phone number: (XXX) XXX-XXXX.");
+    if (!liveState) {
+      setError("Please select your state.");
       return;
     }
+    if (!liveAuthorized) {
+      setError("You must authorize the verification to continue.");
+      return;
+    }
+
+    // Validate phone (NANP/E.164). Block submit on any failure with specific message.
+    const phoneCheck = validateUSPhone(livePhoneRaw);
+    if (!phoneCheck.ok) {
+      setPhoneError(phoneCheck.error);
+      setError(phoneCheck.error);
+      // Focus the phone field so the user can correct it immediately
+      phoneInputRef.current?.focus();
+      return;
+    }
+
+    const formattedPhone = phoneCheck.formatted;
+    const phoneE164 = phoneCheck.e164; // e.g. +15551234567
+    const livePhoneDigits = phoneE164.slice(2); // 10 digits, no country code
+
     // Sync state back in case fallback values were used
     if (liveName !== name) setName(liveName);
     if (liveState !== stateVal) setStateVal(liveState);
     if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
-    const formattedPhone = formatUSPhone(livePhoneDigits);
     if (formattedPhone !== phone) setPhone(formattedPhone);
+    setPhoneError("");
 
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
@@ -311,7 +330,7 @@ function Index() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("oc_full_name", liveName);
         sessionStorage.setItem("oc_phone", formattedPhone);
-        sessionStorage.setItem("oc_phone_e164", `+1${livePhoneDigits}`);
+        sessionStorage.setItem("oc_phone_e164", phoneE164);
       }
     } catch {}
 
@@ -325,7 +344,8 @@ function Index() {
         w.dataLayer.push({
           event: "lead_submitted",
           lead_phone: formattedPhone,
-          lead_phone_e164: `+1${livePhoneDigits}`,
+          lead_phone_e164: phoneE164,
+          lead_phone_digits: livePhoneDigits,
           lead_name: liveName,
           lead_state: liveState,
           click_id: clickId,
