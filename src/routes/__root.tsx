@@ -31,6 +31,11 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" },
       { name: "theme-color", content: "#0e2a3a" },
       { name: "format-detection", content: "telephone=no" },
+      // Strip Referer header from ALL outbound navigations / requests so that
+      // Digistore (and any other external endpoint) cannot see the originating
+      // domain of the ad / funnel. URL query params (utm_*, fbclid, gclid, etc.)
+      // are still passed through explicitly when we build outbound links.
+      { name: "referrer", content: "no-referrer" },
       { title: "American System" },
       { name: "description", content: "American System" },
       { name: "author", content: "Lovable" },
