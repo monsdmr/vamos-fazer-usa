@@ -223,6 +223,7 @@ function VslPage() {
               href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
               aria-label="Exclusive offer — only now"
               className="exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg"
               style={{
