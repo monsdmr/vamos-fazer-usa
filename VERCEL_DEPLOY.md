@@ -16,6 +16,7 @@ Pode ser publicado no Vercel como site estático em poucos passos.
 O `vercel.json` já define:
 - `buildCommand`: `npm run build:vercel`
 - `outputDirectory`: `dist/client`
+- Build estático: desativa o adaptador Cloudflare apenas no Vercel para permitir o pré-render correto.
 - Pós-build: cria `dist/client/index.html` a partir do shell estático quando necessário.
 - Rewrite SPA: todas as rotas caem no `index.html` (necessário porque cada página VSL/upsell é uma rota separada do TanStack Router).
 - Cache imutável de 1 ano para `/assets/*`.

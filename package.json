@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "build:vercel": "vite build && node scripts/prepare-vercel-static.mjs",
+    "build:vercel": "VERCEL_STATIC=1 vite build && node scripts/prepare-vercel-static.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
