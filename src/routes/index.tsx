@@ -457,16 +457,37 @@ function Index() {
                     type="tel"
                     inputMode="tel"
                     value={phone}
-                    onChange={(e) => setPhone(formatUSPhone(e.target.value))}
+                    onChange={(e) => {
+                      setPhone(formatUSPhone(e.target.value));
+                      if (phoneError) setPhoneError("");
+                    }}
+                    onBlur={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      const check = validateUSPhone(v);
+                      setPhoneError(check.ok ? "" : check.error);
+                    }}
                     placeholder="(555) 123-4567"
                     maxLength={14}
-                    className="w-full rounded-md border border-input bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                    aria-invalid={phoneError ? true : undefined}
+                    aria-describedby="phone-help phone-error"
+                    className={`w-full rounded-md border bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:ring-2 ${
+                      phoneError
+                        ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                        : "border-input focus:border-[var(--brand)] focus:ring-[var(--brand)]/20"
+                    }`}
                     autoComplete="tel-national"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  US format: (XXX) XXX-XXXX
-                </p>
+                {phoneError ? (
+                  <p id="phone-error" className="mt-1 text-[12px] font-medium text-destructive">
+                    {phoneError}
+                  </p>
+                ) : (
+                  <p id="phone-help" className="mt-1 text-[11px] text-muted-foreground">
+                    US format: (XXX) XXX-XXXX
+                  </p>
+                )}
               </div>
 
               <div>
