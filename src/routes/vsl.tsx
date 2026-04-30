@@ -92,16 +92,47 @@ function VslPage() {
 
   // Build the Digistore checkout URL with first_name / last_name prefilled
   // from the Full Name the user entered on the home page.
+  // Also forward marketing/tracking query params (utm_*, fbclid, gclid, ttclid,
+  // msclkid, etc.) so Tag Manager and pixel events keep working — but the
+  // Referer header itself is stripped (meta name="referrer" + rel="noreferrer"),
+  // so Digistore cannot see the originating domain.
   useEffect(() => {
     try {
-      const fullName = (sessionStorage.getItem("oc_full_name") || "").trim();
-      if (!fullName) return;
-      const parts = fullName.split(/\s+/);
-      const firstName = parts.shift() || "";
-      const lastName = parts.join(" ");
       const url = new URL("https://www.checkout-ds24.com/product/687076");
-      if (firstName) url.searchParams.set("first_name", firstName);
-      if (lastName) url.searchParams.set("last_name", lastName);
+
+      // 1) Forward tracking params from the current URL (and persist them so
+      // they survive internal navigation between / and /vsl).
+      const TRACKING_KEYS = [
+        "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+        "utm_id", "fbclid", "gclid", "ttclid", "msclkid", "twclid", "li_fat_id",
+        "wbraid", "gbraid", "epik", "yclid", "sub_id", "aff_sub", "click_id",
+      ];
+      const incoming = new URLSearchParams(window.location.search);
+      let stored: Record<string, string> = {};
+      try {
+        stored = JSON.parse(sessionStorage.getItem("oc_tracking") || "{}");
+      } catch {}
+      for (const key of TRACKING_KEYS) {
+        const v = incoming.get(key) ?? stored[key];
+        if (v) {
+          stored[key] = v;
+          url.searchParams.set(key, v);
+        }
+      }
+      try {
+        sessionStorage.setItem("oc_tracking", JSON.stringify(stored));
+      } catch {}
+
+      // 2) Prefill first_name / last_name from the home form.
+      const fullName = (sessionStorage.getItem("oc_full_name") || "").trim();
+      if (fullName) {
+        const parts = fullName.split(/\s+/);
+        const firstName = parts.shift() || "";
+        const lastName = parts.join(" ");
+        if (firstName) url.searchParams.set("first_name", firstName);
+        if (lastName) url.searchParams.set("last_name", lastName);
+      }
+
       setCheckoutUrl(url.toString());
     } catch {}
   }, []);
@@ -192,6 +223,7 @@ function VslPage() {
               href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
               aria-label="Exclusive offer — only now"
               className="exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg"
               style={{
