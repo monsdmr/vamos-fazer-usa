@@ -463,13 +463,13 @@ function Index() {
 
       {/* Footer — only Privacy Policy, hidden on mobile during verify */}
       <footer className={`border-t border-border bg-white ${focusMode ? "hidden md:block" : ""}`}>
-        <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6 sm:py-8">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-2">
               <FlagUS size={20} />
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
             </div>
           </div>
