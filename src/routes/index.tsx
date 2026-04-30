@@ -226,6 +226,44 @@ function Index() {
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
   const authorizedRef = useRef<HTMLInputElement | null>(null);
 
+  // Capture marketing/tracking params from the URL on first mount and persist
+  // them in sessionStorage. The VSL page reads `oc_tracking` to forward these
+  // to the Digistore checkout (sid1, utm_*, fbclid, etc.), so they survive
+  // internal navigation between / and /vsl even if the user clicks a <Link>
+  // that doesn't carry the query string.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const TRACKING_KEYS = [
+      "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+      "utm_id", "fbclid", "gclid", "ttclid", "msclkid", "twclid", "li_fat_id",
+      "wbraid", "gbraid", "epik", "yclid", "sub_id", "aff_sub", "click_id",
+    ];
+    try {
+      const incoming = new URLSearchParams(window.location.search);
+      let stored: Record<string, string> = {};
+      try {
+        stored = JSON.parse(sessionStorage.getItem("oc_tracking") || "{}");
+      } catch {}
+      let changed = false;
+      for (const key of TRACKING_KEYS) {
+        const v = incoming.get(key);
+        if (v && stored[key] !== v) {
+          stored[key] = v;
+          changed = true;
+        }
+      }
+      // Also persist click_id (fbclid || ttclid) explicitly so the VSL has
+      // a fallback even before the form is submitted.
+      const clickId = incoming.get("fbclid") || incoming.get("ttclid") || "";
+      if (clickId && sessionStorage.getItem("click_id") !== clickId) {
+        sessionStorage.setItem("click_id", clickId);
+      }
+      if (changed) {
+        sessionStorage.setItem("oc_tracking", JSON.stringify(stored));
+      }
+    } catch {}
+  }, []);
+
   // Preload the /vsl route + player + thumbnail as soon as we enter step 2.
   // By the time the user lands on step 3 and clicks, everything is cached.
   useEffect(() => {
