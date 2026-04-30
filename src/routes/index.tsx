@@ -231,6 +231,25 @@ function Index() {
         sessionStorage.setItem("oc_phone_e164", `+1${livePhoneDigits}`);
       }
     } catch {}
+
+    // GTM dataLayer push — fired BEFORE any redirect/step change
+    try {
+      if (typeof window !== "undefined") {
+        const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+        w.dataLayer = w.dataLayer || [];
+        const urlParams = new URLSearchParams(window.location.search);
+        const clickId = urlParams.get("fbclid") || urlParams.get("ttclid") || "";
+        w.dataLayer.push({
+          event: "lead_submitted",
+          lead_phone: formattedPhone,
+          lead_phone_e164: `+1${livePhoneDigits}`,
+          lead_name: liveName,
+          lead_state: liveState,
+          click_id: clickId,
+        });
+      }
+    } catch {}
+
     setStep(2);
   };
 
