@@ -217,6 +217,7 @@ function Index() {
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
   
