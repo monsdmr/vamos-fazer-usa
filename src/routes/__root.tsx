@@ -57,6 +57,12 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://images.converteai.net", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://m3u8.vturb.net", crossOrigin: "anonymous" },
       { rel: "dns-prefetch", href: "https://api.vturb.com.br" },
+      { rel: "preconnect", href: "https://www.googletagmanager.com" },
+    ],
+    scripts: [
+      {
+        children: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P249W95K');`,
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -71,6 +77,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        {/* Google Tag Manager (noscript) — must be in <body> per HTML5 spec */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-P249W95K"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          />
+        </noscript>
         {children}
         <Scripts />
       </body>
