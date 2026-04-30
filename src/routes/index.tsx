@@ -323,6 +323,32 @@ function Index() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <span className="pointer-events-none absolute left-9 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                    +1
+                  </span>
+                  <input
+                    ref={phoneInputRef}
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(formatUSPhone(e.target.value))}
+                    placeholder="(555) 123-4567"
+                    maxLength={14}
+                    className="w-full rounded-md border border-input bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                    autoComplete="tel-national"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  US format: (XXX) XXX-XXXX
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-foreground">
                   State
                 </label>
                 <div className="relative">
