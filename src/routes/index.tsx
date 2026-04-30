@@ -387,41 +387,41 @@ function Index() {
           )}
 
           {step === 3 && (
-            <div className="mt-8 flex flex-col items-center text-center">
-              <h2 className="text-2xl font-bold leading-tight text-foreground md:text-3xl">
+            <div className="mt-6 sm:mt-8 flex flex-col items-center text-center">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight text-foreground break-words">
                 Congratulations{name ? `, ${name}` : ""} — there are{" "}
                 <span className="text-emerald-600">$2,350.00</span> available in
                 your name.
               </h2>
               {stateVal && (
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
                   State selected: {stateVal}.
                 </p>
               )}
 
-              <div className="my-8 text-5xl font-extrabold tracking-tight text-emerald-600 md:text-6xl">
+              <div className="my-6 sm:my-8 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-emerald-600">
                 $2,350.00
               </div>
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground break-all">
                 Record #: {recordId}
               </p>
 
               <Link
                 to="/vsl"
                 preload="intent"
-                className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90"
+                className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-3 py-3 text-xs sm:text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90 text-center"
               >
-                <Play className="h-4 w-4" />
-                Watch Official Video: How to Receive
+                <Play className="h-4 w-4 shrink-0" />
+                <span className="leading-tight">Watch Official Video: How to Receive</span>
               </Link>
               <button
                 type="button"
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-3 py-3 text-xs sm:text-sm font-semibold text-muted-foreground hover:bg-muted/70 text-center"
               >
                 <Suspense fallback={<IconFallback />}>
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4 shrink-0" />
                 </Suspense>{" "}
-                Download Instructions (PDF) — Watch video first
+                <span className="leading-tight">Download Instructions (PDF) — Watch video first</span>
               </button>
 
               <button
