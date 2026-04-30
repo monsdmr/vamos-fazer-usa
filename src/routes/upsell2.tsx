@@ -53,7 +53,7 @@ function Upsell2Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900 flex flex-col">
       {/* Top bar */}
       <header
         className="w-full bg-[#0e2a3a] text-white"
