@@ -81,11 +81,11 @@ function UpsellPage() {
       <UpsellProgress currentStep={1} />
 
       {/* Title */}
-      <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
-        <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+      <section className="mx-auto w-full max-w-3xl px-4 pt-6 sm:pt-12 text-center">
+        <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
           Your Order Is Not Complete Yet
         </h1>
-        <h2 className="mt-2 text-xl sm:text-3xl font-extrabold tracking-tight">
+        <h2 className="mt-2 text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
           Please Watch This Important Message Below Now
         </h2>
       </section>
