@@ -213,7 +213,7 @@ function Index() {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen overflow-x-hidden"
       style={
         {
           backgroundColor: "#f3f6fa",
