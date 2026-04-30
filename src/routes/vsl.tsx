@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 
 import { FlagUS } from "../components/Flag";
