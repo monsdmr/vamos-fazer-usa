@@ -130,7 +130,7 @@ function UpsellPage() {
           <UpsellPriceBlock price="$47.00" recurring="$47.00 every 30 days, until canceled!" />
           <a
             href={YES_URL}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
+            className="w-full inline-flex items-center justify-center px-4 py-4 sm:px-8 sm:py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-sm sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98] text-center break-words"
             style={{
               animation: "upsellPulse 1.6s ease-in-out infinite",
             }}
