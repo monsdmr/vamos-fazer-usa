@@ -109,6 +109,9 @@ function VslPage() {
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
+  // Loading state for the checkout CTA — prevents double-click while the
+  // dataLayer push is processing and the redirect is in flight.
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Build the Digistore checkout URL.
   // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
