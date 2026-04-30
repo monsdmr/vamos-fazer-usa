@@ -127,6 +127,88 @@ function formatUSPhone(value: string) {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
+// Validate a US phone (NANP) raw input. Returns { ok, e164, error }.
+// Rules per NANP:
+//  - Strip optional leading "+1" or "1"
+//  - Must be exactly 10 digits after stripping
+//  - Area code (NPA): first digit 2-9, second digit 0-9, third digit 0-9
+//  - Exchange code (NXX): first digit 2-9
+//  - Reject inputs containing letters or invalid characters
+function validateUSPhone(raw: string): {
+  ok: boolean;
+  e164: string;
+  formatted: string;
+  error: string;
+} {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return { ok: false, e164: "", formatted: "", error: "Phone number is required." };
+  }
+  // Reject letters explicitly (common typo: typing words instead of numbers)
+  if (/[a-zA-Z]/.test(trimmed)) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number cannot contain letters. Use digits only, e.g. (555) 123-4567.",
+    };
+  }
+  // Allow only digits, spaces, parentheses, hyphens, dots and leading +
+  if (!/^[+\d\s().\-]+$/.test(trimmed)) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number contains invalid characters. Use digits only.",
+    };
+  }
+  let digits = trimmed.replace(/\D/g, "");
+  // Strip optional country code "1"
+  if (digits.length === 11 && digits.startsWith("1")) {
+    digits = digits.slice(1);
+  }
+  if (digits.length < 10) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: `Phone number is too short (${digits.length}/10 digits). Use US format: (XXX) XXX-XXXX.`,
+    };
+  }
+  if (digits.length > 10) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number has too many digits. US numbers have 10 digits.",
+    };
+  }
+  const areaCode = digits.slice(0, 3);
+  const exchange = digits.slice(3, 6);
+  if (areaCode[0] === "0" || areaCode[0] === "1") {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Invalid area code. US area codes cannot start with 0 or 1.",
+    };
+  }
+  if (exchange[0] === "0" || exchange[0] === "1") {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Invalid phone number. The 4th digit cannot be 0 or 1.",
+    };
+  }
+  return {
+    ok: true,
+    e164: `+1${digits}`,
+    formatted: formatUSPhone(digits),
+    error: "",
+  };
+}
+
 function Index() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -135,6 +217,7 @@ function Index() {
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
   
@@ -196,24 +279,43 @@ function Index() {
     // (e.g. mobile autofill or race between checkbox toggle and submit click).
     const liveName = (nameInputRef.current?.value ?? name).trim();
     const livePhoneRaw = phoneInputRef.current?.value ?? phone;
-    const livePhoneDigits = livePhoneRaw.replace(/\D/g, "");
     const liveState = stateSelectRef.current?.value ?? stateVal;
     const liveAuthorized = authorizedRef.current?.checked ?? authorized;
 
-    if (!liveName || !liveState || !liveAuthorized) {
-      setError("Please enter your name, choose a state, and authorize verification.");
+    // Validate name + state + consent first
+    if (!liveName) {
+      setError("Please enter your full name.");
       return;
     }
-    if (livePhoneDigits.length !== 10) {
-      setError("Please enter a valid US phone number: (XXX) XXX-XXXX.");
+    if (!liveState) {
+      setError("Please select your state.");
       return;
     }
+    if (!liveAuthorized) {
+      setError("You must authorize the verification to continue.");
+      return;
+    }
+
+    // Validate phone (NANP/E.164). Block submit on any failure with specific message.
+    const phoneCheck = validateUSPhone(livePhoneRaw);
+    if (!phoneCheck.ok) {
+      setPhoneError(phoneCheck.error);
+      setError(phoneCheck.error);
+      // Focus the phone field so the user can correct it immediately
+      phoneInputRef.current?.focus();
+      return;
+    }
+
+    const formattedPhone = phoneCheck.formatted;
+    const phoneE164 = phoneCheck.e164; // e.g. +15551234567
+    const livePhoneDigits = phoneE164.slice(2); // 10 digits, no country code
+
     // Sync state back in case fallback values were used
     if (liveName !== name) setName(liveName);
     if (liveState !== stateVal) setStateVal(liveState);
     if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
-    const formattedPhone = formatUSPhone(livePhoneDigits);
     if (formattedPhone !== phone) setPhone(formattedPhone);
+    setPhoneError("");
 
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
@@ -228,7 +330,7 @@ function Index() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("oc_full_name", liveName);
         sessionStorage.setItem("oc_phone", formattedPhone);
-        sessionStorage.setItem("oc_phone_e164", `+1${livePhoneDigits}`);
+        sessionStorage.setItem("oc_phone_e164", phoneE164);
       }
     } catch {}
 
@@ -242,7 +344,8 @@ function Index() {
         w.dataLayer.push({
           event: "lead_submitted",
           lead_phone: formattedPhone,
-          lead_phone_e164: `+1${livePhoneDigits}`,
+          lead_phone_e164: phoneE164,
+          lead_phone_digits: livePhoneDigits,
           lead_name: liveName,
           lead_state: liveState,
           click_id: clickId,
@@ -354,16 +457,37 @@ function Index() {
                     type="tel"
                     inputMode="tel"
                     value={phone}
-                    onChange={(e) => setPhone(formatUSPhone(e.target.value))}
+                    onChange={(e) => {
+                      setPhone(formatUSPhone(e.target.value));
+                      if (phoneError) setPhoneError("");
+                    }}
+                    onBlur={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      const check = validateUSPhone(v);
+                      setPhoneError(check.ok ? "" : check.error);
+                    }}
                     placeholder="(555) 123-4567"
                     maxLength={14}
-                    className="w-full rounded-md border border-input bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                    aria-invalid={phoneError ? true : undefined}
+                    aria-describedby="phone-help phone-error"
+                    className={`w-full rounded-md border bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:ring-2 ${
+                      phoneError
+                        ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                        : "border-input focus:border-[var(--brand)] focus:ring-[var(--brand)]/20"
+                    }`}
                     autoComplete="tel-national"
                   />
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  US format: (XXX) XXX-XXXX
-                </p>
+                {phoneError ? (
+                  <p id="phone-error" className="mt-1 text-[12px] font-medium text-destructive">
+                    {phoneError}
+                  </p>
+                ) : (
+                  <p id="phone-help" className="mt-1 text-[11px] text-muted-foreground">
+                    US format: (XXX) XXX-XXXX
+                  </p>
+                )}
               </div>
 
               <div>
