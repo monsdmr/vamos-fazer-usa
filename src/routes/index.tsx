@@ -56,15 +56,15 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
   ];
   const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
-    <div className="pb-6">
-      <div className="flex items-center justify-between gap-2">
+    <div className="pb-5 sm:pb-6">
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
         {steps.map((s) => {
           const active = current === s.n;
           const done = current > s.n;
           return (
-            <div key={s.n} className="flex flex-1 flex-col items-center">
+            <div key={s.n} className="flex flex-1 flex-col items-center min-w-0">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
+                className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border-2 text-xs sm:text-sm font-semibold transition-colors ${
                   done
                     ? "border-emerald-500 bg-emerald-50 text-emerald-600"
                     : active
@@ -72,10 +72,10 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
                       : "border-muted-foreground/30 text-muted-foreground"
                 }`}
               >
-                {done ? <Check className="h-5 w-5" /> : s.n}
+                {done ? <Check className="h-4 w-4 sm:h-5 sm:w-5" /> : s.n}
               </div>
               <span
-                className={`mt-2 text-xs font-semibold ${
+                className={`mt-1.5 sm:mt-2 text-[11px] sm:text-xs font-semibold text-center ${
                   done
                     ? "text-emerald-600"
                     : active
