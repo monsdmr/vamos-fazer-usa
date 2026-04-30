@@ -189,7 +189,7 @@ function VslPage() {
         <div className="mt-8 flex flex-col items-center justify-center sm:mt-10">
           {ctaUnlocked ? (
             <a
-              href="https://www.checkout-ds24.com/product/687076"
+              href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Exclusive offer — only now"
