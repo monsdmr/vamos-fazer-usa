@@ -8,6 +8,7 @@ import {
   User,
   MapPin,
   Play,
+  Phone,
 } from "lucide-react";
 import { FlagUS } from "../components/Flag";
 
@@ -116,10 +117,21 @@ function generateRecordId() {
 const VSL_THUMB =
   "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg";
 
+// Format a digit string into US phone mask: (XXX) XXX-XXXX
+function formatUSPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  const len = digits.length;
+  if (len === 0) return "";
+  if (len < 4) return `(${digits}`;
+  if (len < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function Index() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
@@ -127,6 +139,7 @@ function Index() {
   const [recordId, setRecordId] = useState("");
   
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
   const authorizedRef = useRef<HTMLInputElement | null>(null);
 
@@ -182,6 +195,8 @@ function Index() {
     // Read live values from the DOM as a fallback in case React state is stale
     // (e.g. mobile autofill or race between checkbox toggle and submit click).
     const liveName = (nameInputRef.current?.value ?? name).trim();
+    const livePhoneRaw = phoneInputRef.current?.value ?? phone;
+    const livePhoneDigits = livePhoneRaw.replace(/\D/g, "");
     const liveState = stateSelectRef.current?.value ?? stateVal;
     const liveAuthorized = authorizedRef.current?.checked ?? authorized;
 
@@ -189,22 +204,31 @@ function Index() {
       setError("Please enter your name, choose a state, and authorize verification.");
       return;
     }
+    if (livePhoneDigits.length !== 10) {
+      setError("Please enter a valid US phone number: (XXX) XXX-XXXX.");
+      return;
+    }
     // Sync state back in case fallback values were used
     if (liveName !== name) setName(liveName);
     if (liveState !== stateVal) setStateVal(liveState);
     if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
+    const formattedPhone = formatUSPhone(livePhoneDigits);
+    if (formattedPhone !== phone) setPhone(formattedPhone);
 
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
+    phoneInputRef.current?.blur();
     stateSelectRef.current?.blur();
     if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
     setError("");
-    // Persist name for later checkout prefill
+    // Persist name + phone for later checkout prefill
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("oc_full_name", liveName);
+        sessionStorage.setItem("oc_phone", formattedPhone);
+        sessionStorage.setItem("oc_phone_e164", `+1${livePhoneDigits}`);
       }
     } catch {}
     setStep(2);
@@ -295,6 +319,32 @@ function Index() {
                     autoComplete="name"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-foreground">
+                  Phone Number
+                </label>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <span className="pointer-events-none absolute left-9 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                    +1
+                  </span>
+                  <input
+                    ref={phoneInputRef}
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(formatUSPhone(e.target.value))}
+                    placeholder="(555) 123-4567"
+                    maxLength={14}
+                    className="w-full rounded-md border border-input bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
+                    autoComplete="tel-national"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  US format: (XXX) XXX-XXXX
+                </p>
               </div>
 
               <div>
