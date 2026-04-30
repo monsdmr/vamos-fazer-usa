@@ -117,10 +117,21 @@ function generateRecordId() {
 const VSL_THUMB =
   "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg";
 
+// Format a digit string into US phone mask: (XXX) XXX-XXXX
+function formatUSPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  const len = digits.length;
+  if (len === 0) return "";
+  if (len < 4) return `(${digits}`;
+  if (len < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 function Index() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [stateVal, setStateVal] = useState("");
   const [authorized, setAuthorized] = useState(false);
   const [error, setError] = useState("");
@@ -128,6 +139,7 @@ function Index() {
   const [recordId, setRecordId] = useState("");
   
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
   const authorizedRef = useRef<HTMLInputElement | null>(null);
 
