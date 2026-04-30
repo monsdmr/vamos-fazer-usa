@@ -8,6 +8,7 @@ import {
   User,
   MapPin,
   Play,
+  Phone,
 } from "lucide-react";
 import { FlagUS } from "../components/Flag";
 
