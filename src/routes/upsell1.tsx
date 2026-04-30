@@ -54,7 +54,7 @@ function UpsellPage() {
 
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900 flex flex-col">
       {/* Top bar */}
       <header
         className="w-full bg-[#0e2a3a] text-white"
@@ -81,11 +81,11 @@ function UpsellPage() {
       <UpsellProgress currentStep={1} />
 
       {/* Title */}
-      <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
-        <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+      <section className="mx-auto w-full max-w-3xl px-4 pt-6 sm:pt-12 text-center">
+        <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
           Your Order Is Not Complete Yet
         </h1>
-        <h2 className="mt-2 text-xl sm:text-3xl font-extrabold tracking-tight">
+        <h2 className="mt-2 text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
           Please Watch This Important Message Below Now
         </h2>
       </section>
@@ -130,7 +130,7 @@ function UpsellPage() {
           <UpsellPriceBlock price="$47.00" recurring="$47.00 every 30 days, until canceled!" />
           <a
             href={YES_URL}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
+            className="w-full inline-flex items-center justify-center px-4 py-4 sm:px-8 sm:py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-sm sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98] text-center break-words"
             style={{
               animation: "upsellPulse 1.6s ease-in-out infinite",
             }}

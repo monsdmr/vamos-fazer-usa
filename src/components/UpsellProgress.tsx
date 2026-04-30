@@ -14,10 +14,10 @@ export function UpsellProgress({ currentStep }: UpsellProgressProps) {
   const pct = ((currentStep - 1) / (STEPS.length - 1)) * 100;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pt-5 sm:pt-6">
-      <div className="flex items-center justify-between text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-        <span>Step {currentStep} of {STEPS.length}</span>
-        <span className="text-emerald-600">{Math.round(pct)}% complete</span>
+    <div className="mx-auto w-full max-w-3xl px-3 pt-4 sm:px-4 sm:pt-6">
+      <div className="flex items-center justify-between text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 gap-2">
+        <span className="truncate">Step {currentStep} of {STEPS.length}</span>
+        <span className="text-emerald-600 shrink-0">{Math.round(pct)}% complete</span>
       </div>
 
       <div className="relative">

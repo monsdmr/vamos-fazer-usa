@@ -53,7 +53,7 @@ function Upsell3Page() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900 flex flex-col">
       {/* Top bar */}
       <header
         className="w-full bg-[#0e2a3a] text-white"
@@ -80,14 +80,14 @@ function Upsell3Page() {
       <UpsellProgress currentStep={3} />
 
       {/* Title */}
-      <section className="mx-auto w-full max-w-3xl px-4 pt-8 sm:pt-12 text-center">
-        <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-slate-500">
+      <section className="mx-auto w-full max-w-3xl px-4 pt-6 sm:pt-12 text-center">
+        <p className="text-[11px] sm:text-sm font-semibold uppercase tracking-widest text-slate-500">
           Step 3 of 3 — Hidden System
         </p>
-        <h1 className="mt-2 text-2xl sm:text-4xl font-extrabold tracking-tight">
+        <h1 className="mt-2 text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
           Congratulations, you've reached the final step! 🎉
         </h1>
-        <p className="mt-3 text-slate-500 text-base sm:text-lg">
+        <p className="mt-3 text-slate-500 text-sm sm:text-lg">
           Watch the short video below to enable faster processing.
         </p>
       </section>
@@ -135,7 +135,7 @@ function Upsell3Page() {
           <UpsellPriceBlock price="$37.00" recurring="$37.00 every 30 days, until canceled!" />
           <a
             href={YES_URL}
-            className="w-full sm:w-auto inline-flex items-center justify-center text-center px-8 py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-base sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98]"
+            className="w-full inline-flex items-center justify-center text-center px-4 py-4 sm:px-8 sm:py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-sm sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98] break-words"
             style={{
               animation: "upsell3Pulse 1.6s ease-in-out infinite",
             }}

