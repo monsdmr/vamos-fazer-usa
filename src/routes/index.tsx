@@ -201,6 +201,12 @@ function Index() {
       document.activeElement.blur();
     }
     setError("");
+    // Persist name for later checkout prefill
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("oc_full_name", liveName);
+      }
+    } catch {}
     setStep(2);
   };
 
