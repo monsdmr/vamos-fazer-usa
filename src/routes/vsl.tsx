@@ -85,7 +85,27 @@ const PLAYER_SRC =
 
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
-  const ctaUnlocked = watchedTimeUnlocked;
+
+  // Debug-only bypass: ?debug_unlock=1 reveals the CTA immediately, but ONLY
+  // in non-production environments (localhost or lovable preview/sandbox hosts).
+  // In production this flag is ignored so users can't skip the video.
+  const [debugUnlocked, setDebugUnlocked] = useState(false);
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("debug_unlock") !== "1") return;
+      const host = window.location.hostname;
+      const isDev =
+        host === "localhost" ||
+        host === "127.0.0.1" ||
+        host.endsWith(".lovable.app") ||
+        host.endsWith(".lovableproject.com") ||
+        host.endsWith(".lovable.dev");
+      if (isDev) setDebugUnlocked(true);
+    } catch {}
+  }, []);
+
+  const ctaUnlocked = watchedTimeUnlocked || debugUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
