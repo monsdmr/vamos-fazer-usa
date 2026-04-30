@@ -208,14 +208,6 @@ function VslPage() {
           </span>
         </div>
 
-        <div className="mt-8 text-center">
-          <Link
-            to="/"
-            className="text-xs font-semibold text-muted-foreground underline hover:text-foreground"
-          >
-            ← Back to verification
-          </Link>
-        </div>
       </main>
 
       {/* Footer */}
