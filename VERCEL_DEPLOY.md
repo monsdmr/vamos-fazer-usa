@@ -14,9 +14,9 @@ Pode ser publicado no Vercel como site estático em poucos passos.
 4. Clique em **Deploy**.
 
 O `vercel.json` já define:
-- `buildCommand`: `vite build`
+- `buildCommand`: `npm run build:vercel`
 - `outputDirectory`: `dist/client`
-- `installCommand`: `bun install`
+- Pós-build: cria `dist/client/index.html` a partir do shell estático quando necessário.
 - Rewrite SPA: todas as rotas caem no `index.html` (necessário porque cada página VSL/upsell é uma rota separada do TanStack Router).
 - Cache imutável de 1 ano para `/assets/*`.
 
