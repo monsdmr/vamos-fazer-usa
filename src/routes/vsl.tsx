@@ -109,6 +109,9 @@ function VslPage() {
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
+  // Loading state for the checkout CTA — prevents double-click while the
+  // dataLayer push is processing and the redirect is in flight.
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   // Build the Digistore checkout URL.
   // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
@@ -263,7 +266,16 @@ function VslPage() {
               target="_blank"
               rel="noopener noreferrer"
               referrerPolicy="no-referrer"
+              aria-disabled={isCheckingOut}
+              tabIndex={isCheckingOut ? -1 : 0}
               onClick={(e) => {
+                // Block double-clicks while the dataLayer push + new-tab open
+                // are in flight.
+                if (isCheckingOut) {
+                  e.preventDefault();
+                  return;
+                }
+                setIsCheckingOut(true);
                 try {
                   const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
                   w.dataLayer = w.dataLayer || [];
@@ -274,16 +286,32 @@ function VslPage() {
                     lead_state: sessionStorage.getItem("lead_state") || "",
                   });
                 } catch {}
+                // Re-enable after a few seconds in case the user closes the
+                // new tab and wants to retry.
+                window.setTimeout(() => setIsCheckingOut(false), 4000);
               }}
               aria-label="Exclusive offer — only now"
-              className="exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg"
+              className={`exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg ${
+                isCheckingOut ? "pointer-events-none opacity-80" : ""
+              }`}
               style={{
                 background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
               }}
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-              <span className="relative z-10 drop-shadow-sm">
-                EXCLUSIVE OFFER! ONLY NOW
+              <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-sm">
+                {isCheckingOut ? (
+                  <>
+                    <span
+                      className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#1a2332]/30 border-t-[#1a2332]"
+                      role="status"
+                      aria-label="Processing"
+                    />
+                    PROCESSING…
+                  </>
+                ) : (
+                  "EXCLUSIVE OFFER! ONLY NOW"
+                )}
               </span>
             </a>
           ) : (
