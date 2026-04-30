@@ -127,6 +127,88 @@ function formatUSPhone(value: string) {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
+// Validate a US phone (NANP) raw input. Returns { ok, e164, error }.
+// Rules per NANP:
+//  - Strip optional leading "+1" or "1"
+//  - Must be exactly 10 digits after stripping
+//  - Area code (NPA): first digit 2-9, second digit 0-9, third digit 0-9
+//  - Exchange code (NXX): first digit 2-9
+//  - Reject inputs containing letters or invalid characters
+function validateUSPhone(raw: string): {
+  ok: boolean;
+  e164: string;
+  formatted: string;
+  error: string;
+} {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return { ok: false, e164: "", formatted: "", error: "Phone number is required." };
+  }
+  // Reject letters explicitly (common typo: typing words instead of numbers)
+  if (/[a-zA-Z]/.test(trimmed)) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number cannot contain letters. Use digits only, e.g. (555) 123-4567.",
+    };
+  }
+  // Allow only digits, spaces, parentheses, hyphens, dots and leading +
+  if (!/^[+\d\s().\-]+$/.test(trimmed)) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number contains invalid characters. Use digits only.",
+    };
+  }
+  let digits = trimmed.replace(/\D/g, "");
+  // Strip optional country code "1"
+  if (digits.length === 11 && digits.startsWith("1")) {
+    digits = digits.slice(1);
+  }
+  if (digits.length < 10) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: `Phone number is too short (${digits.length}/10 digits). Use US format: (XXX) XXX-XXXX.`,
+    };
+  }
+  if (digits.length > 10) {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Phone number has too many digits. US numbers have 10 digits.",
+    };
+  }
+  const areaCode = digits.slice(0, 3);
+  const exchange = digits.slice(3, 6);
+  if (areaCode[0] === "0" || areaCode[0] === "1") {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Invalid area code. US area codes cannot start with 0 or 1.",
+    };
+  }
+  if (exchange[0] === "0" || exchange[0] === "1") {
+    return {
+      ok: false,
+      e164: "",
+      formatted: "",
+      error: "Invalid phone number. The 4th digit cannot be 0 or 1.",
+    };
+  }
+  return {
+    ok: true,
+    e164: `+1${digits}`,
+    formatted: formatUSPhone(digits),
+    error: "",
+  };
+}
+
 function Index() {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
