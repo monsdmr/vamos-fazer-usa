@@ -60,6 +60,11 @@ export const Route = createRootRoute({
       { rel: "preconnect", href: "https://www.googletagmanager.com" },
     ],
     scripts: [
+      // Device fingerprint — must run BEFORE GTM so the hash is available for
+      // any subsequent dataLayer event (form_start, begin_checkout, etc.).
+      {
+        children: `(function(){try{if(typeof window==='undefined'||typeof sessionStorage==='undefined')return;var existing=sessionStorage.getItem('device_fingerprint');var fp=existing;if(!fp){var d={screen:(screen.width+'x'+screen.height+'x'+screen.colorDepth),timezone:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),language:(navigator.language||''),platform:(navigator.platform||''),cores:(navigator.hardwareConcurrency||''),memory:(navigator.deviceMemory||''),touchPoints:(navigator.maxTouchPoints||0),userAgent:(navigator.userAgent||'')};var s=[d.screen,d.timezone,d.language,d.platform,d.cores,d.memory,d.touchPoints,d.userAgent].join('|');var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}fp=Math.abs(h).toString(36);sessionStorage.setItem('device_fingerprint',fp);}window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'fingerprint_ready',device_fingerprint:fp});}catch(e){}})();`,
+      },
       {
         children: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-P249W95K');`,
       },
