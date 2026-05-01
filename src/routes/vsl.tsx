@@ -193,10 +193,6 @@ function VslPage() {
     s.src = PLAYER_SRC;
     s.async = true;
     document.head.appendChild(s);
-
-    return () => {
-      // leave the script in place across navigations; only the route remount handles it
-    };
   }, []);
 
   return (
@@ -224,7 +220,6 @@ function VslPage() {
               </div>
             </div>
           </Link>
-          {/* Nav removed to keep focus on the video */}
         </div>
 
         {/* Hero */}

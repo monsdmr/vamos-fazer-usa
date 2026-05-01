@@ -220,7 +220,7 @@ function Index() {
   const [phoneError, setPhoneError] = useState("");
   const [loadingIdx, setLoadingIdx] = useState(0);
   const [recordId, setRecordId] = useState("");
-  
+
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   const phoneInputRef = useRef<HTMLInputElement | null>(null);
   const stateSelectRef = useRef<HTMLSelectElement | null>(null);
@@ -308,8 +308,6 @@ function Index() {
       clearTimeout(timeout);
     };
   }, [step, router]);
-
-  // No auto-redirect — user must click "Watch Video" button.
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -431,7 +429,6 @@ function Index() {
               </div>
             </div>
           </div>
-          {/* Nav removed to reduce exit links */}
         </div>
 
         {/* Hero */}
