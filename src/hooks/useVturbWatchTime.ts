@@ -40,7 +40,7 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
       if (Number.isFinite(seconds) && seconds >= revealSeconds) unlock();
     };
 
-    const playerMatches = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
+    const playerMatches = (inst: SmartplayerCompatInstance) => {
       const ids = [
         inst.id,
         inst.instance?.id,
@@ -49,10 +49,7 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
         inst.analytics?.player?.options?.id,
       ].filter((id): id is string => typeof id === "string" && id.length > 0);
 
-      return (
-        ids.length === 0 ||
-        ids.some((id) => targetIds.has(id))
-      );
+      return ids.length === 0 || ids.some((id) => targetIds.has(id));
     };
 
     const getSmartplayerInstances = (): SmartplayerCompatInstance[] => {
@@ -61,8 +58,8 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
       return Array.isArray(instances) ? instances : Object.values(instances);
     };
 
-    const attachSmartplayer = (inst: SmartplayerCompatInstance, totalPlayers: number) => {
-      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst, totalPlayers)) return;
+    const attachSmartplayer = (inst: SmartplayerCompatInstance) => {
+      if (!inst || attachedPlayers.has(inst) || !playerMatches(inst)) return;
       attachedPlayers.add(inst);
 
       inst.on?.("timeupdate", (p) => {
@@ -110,16 +107,15 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
       if (cancelled) return;
 
       const players = getSmartplayerInstances();
-      const matchingPlayers = players.filter((inst) => playerMatches(inst, players.length));
+      const matchingPlayers = players.filter(playerMatches);
       if (matchingPlayers.length > 0) {
-        matchingPlayers.forEach((inst) => attachSmartplayer(inst, players.length));
+        matchingPlayers.forEach(attachSmartplayer);
         const tick = window.setInterval(() => {
           if (cancelled) return;
-          const currentPlayers = getSmartplayerInstances();
-          currentPlayers
-            .filter((inst) => playerMatches(inst, currentPlayers.length))
+          getSmartplayerInstances()
+            .filter(playerMatches)
             .forEach((inst) => {
-              attachSmartplayer(inst, currentPlayers.length);
+              attachSmartplayer(inst);
               checkTime(inst.video?.currentTime);
               checkTime(inst.instance?.video?.currentTime);
             });
