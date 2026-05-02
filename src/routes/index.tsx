@@ -325,7 +325,14 @@ function Index() {
       setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
     }, 700);
     const timeout = setTimeout(() => {
-      setRecordId(generateRecordId());
+      const rid = generateRecordId();
+      setRecordId(rid);
+      try {
+        const amount = estimatedAmountFromRecord(rid);
+        sessionStorage.setItem("lead_amount", String(amount));
+        sessionStorage.setItem("lead_amount_formatted", formatUSD(amount));
+        sessionStorage.setItem("lead_record_id", rid);
+      } catch {}
       setStep(3);
     }, 2800);
     return () => {
