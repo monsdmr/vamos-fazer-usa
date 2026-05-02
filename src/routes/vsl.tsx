@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 
 import { FlagUS } from "../components/Flag";
@@ -141,6 +141,42 @@ function VslPage() {
   // Loading state for the checkout CTA — prevents double-click while the
   // dataLayer push is processing and the redirect is in flight.
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  // Sticky CTA: shows a fixed bottom bar when the inline CTA is scrolled
+  // off-screen, so the user never loses sight of the button after unlock.
+  const inlineCtaRef = useRef<HTMLDivElement | null>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+  useEffect(() => {
+    if (!ctaUnlocked) {
+      setShowStickyCta(false);
+      return;
+    }
+    const target = inlineCtaRef.current;
+    if (!target || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { rootMargin: "0px 0px -40px 0px", threshold: 0 },
+    );
+    obs.observe(target);
+    return () => obs.disconnect();
+  }, [ctaUnlocked]);
+
+  const handleBeginCheckout = () => {
+    if (isCheckingOut) return false;
+    setIsCheckingOut(true);
+    try {
+      const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({
+        event: "begin_checkout",
+        lead_phone: sessionStorage.getItem("lead_phone") || "",
+        lead_name: sessionStorage.getItem("lead_name") || "",
+        lead_state: sessionStorage.getItem("lead_state") || "",
+      });
+    } catch {}
+    window.setTimeout(() => setIsCheckingOut(false), 4000);
+    return true;
+  };
 
   // Build the Digistore checkout URL.
   // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
@@ -293,60 +329,16 @@ function VslPage() {
         </div>
 
         {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
-        <div className="mt-8 flex flex-col items-center justify-center sm:mt-10">
+        <div
+          ref={inlineCtaRef}
+          className="mt-8 flex flex-col items-center justify-center sm:mt-10"
+        >
           {ctaUnlocked ? (
-            <a
-              href={checkoutUrl}
-              rel="noopener"
-              referrerPolicy="no-referrer"
-              aria-disabled={isCheckingOut}
-              tabIndex={isCheckingOut ? -1 : 0}
-              onClick={(e) => {
-                // Block double-clicks while the dataLayer push + new-tab open
-                // are in flight.
-                if (isCheckingOut) {
-                  e.preventDefault();
-                  return;
-                }
-                setIsCheckingOut(true);
-                try {
-                  const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
-                  w.dataLayer = w.dataLayer || [];
-                  w.dataLayer.push({
-                    event: "begin_checkout",
-                    lead_phone: sessionStorage.getItem("lead_phone") || "",
-                    lead_name: sessionStorage.getItem("lead_name") || "",
-                    lead_state: sessionStorage.getItem("lead_state") || "",
-                  });
-                } catch {}
-                // Re-enable after a few seconds in case the user closes the
-                // new tab and wants to retry.
-                window.setTimeout(() => setIsCheckingOut(false), 4000);
-              }}
-              aria-label="Exclusive offer — only now"
-              className={`exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full px-8 py-5 text-center text-base font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] sm:text-lg ${
-                isCheckingOut ? "pointer-events-none opacity-80" : ""
-              }`}
-              style={{
-                background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
-              }}
-            >
-              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-              <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-sm">
-                {isCheckingOut ? (
-                  <>
-                    <span
-                      className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#1a2332]/30 border-t-[#1a2332]"
-                      role="status"
-                      aria-label="Processing"
-                    />
-                    PROCESSING…
-                  </>
-                ) : (
-                  "EXCLUSIVE OFFER! ONLY NOW"
-                )}
-              </span>
-            </a>
+            <CtaButton
+              checkoutUrl={checkoutUrl}
+              isCheckingOut={isCheckingOut}
+              onBeginCheckout={handleBeginCheckout}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 py-4">
               <p className="text-center text-sm font-medium text-muted-foreground sm:text-base">
@@ -390,6 +382,23 @@ function VslPage() {
         </div>
       </footer>
 
+      {/* Sticky bottom CTA — appears once unlocked AND inline CTA scrolled away */}
+      {ctaUnlocked && showStickyCta && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.18)] backdrop-blur supports-[backdrop-filter]:bg-white/80 sm:px-4"
+          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+        >
+          <div className="mx-auto flex max-w-md">
+            <CtaButton
+              checkoutUrl={checkoutUrl}
+              isCheckingOut={isCheckingOut}
+              onBeginCheckout={handleBeginCheckout}
+              compact
+            />
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes exclusiveCtaPulse {
           0%, 100% {
@@ -409,5 +418,57 @@ function VslPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+function CtaButton({
+  checkoutUrl,
+  isCheckingOut,
+  onBeginCheckout,
+  compact = false,
+}: {
+  checkoutUrl: string;
+  isCheckingOut: boolean;
+  onBeginCheckout: () => boolean;
+  compact?: boolean;
+}) {
+  return (
+    <a
+      href={checkoutUrl}
+      rel="noopener"
+      referrerPolicy="no-referrer"
+      aria-disabled={isCheckingOut}
+      tabIndex={isCheckingOut ? -1 : 0}
+      onClick={(e) => {
+        if (isCheckingOut) {
+          e.preventDefault();
+          return;
+        }
+        onBeginCheckout();
+      }}
+      aria-label="Exclusive offer — only now"
+      className={`exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full text-center font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] ${
+        compact ? "px-6 py-3.5 text-sm sm:text-base" : "px-8 py-5 text-base sm:text-lg"
+      } ${isCheckingOut ? "pointer-events-none opacity-80" : ""}`}
+      style={{
+        background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
+      }}
+    >
+      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+      <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-sm">
+        {isCheckingOut ? (
+          <>
+            <span
+              className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#1a2332]/30 border-t-[#1a2332]"
+              role="status"
+              aria-label="Processing"
+            />
+            PROCESSING…
+          </>
+        ) : (
+          "EXCLUSIVE OFFER! ONLY NOW"
+        )}
+      </span>
+    </a>
   );
 }
