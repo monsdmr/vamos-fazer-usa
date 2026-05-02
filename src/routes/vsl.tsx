@@ -142,6 +142,42 @@ function VslPage() {
   // dataLayer push is processing and the redirect is in flight.
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
+  // Sticky CTA: shows a fixed bottom bar when the inline CTA is scrolled
+  // off-screen, so the user never loses sight of the button after unlock.
+  const inlineCtaRef = useRef<HTMLDivElement | null>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+  useEffect(() => {
+    if (!ctaUnlocked) {
+      setShowStickyCta(false);
+      return;
+    }
+    const target = inlineCtaRef.current;
+    if (!target || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { rootMargin: "0px 0px -40px 0px", threshold: 0 },
+    );
+    obs.observe(target);
+    return () => obs.disconnect();
+  }, [ctaUnlocked]);
+
+  const handleBeginCheckout = () => {
+    if (isCheckingOut) return false;
+    setIsCheckingOut(true);
+    try {
+      const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({
+        event: "begin_checkout",
+        lead_phone: sessionStorage.getItem("lead_phone") || "",
+        lead_name: sessionStorage.getItem("lead_name") || "",
+        lead_state: sessionStorage.getItem("lead_state") || "",
+      });
+    } catch {}
+    window.setTimeout(() => setIsCheckingOut(false), 4000);
+    return true;
+  };
+
   // Build the Digistore checkout URL.
   // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
   //   so Digistore postbacks can attribute the sale to the correct ad click.
