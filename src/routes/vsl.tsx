@@ -91,7 +91,7 @@ const PLAYER_SRC =
 // (player error, user reload past pitch moment, autoplay blocked, etc.),
 // unlock the CTA after this many seconds on the page so the funnel never
 // dead-ends. Set slightly below the pitch moment so it's a true safety net.
-const PAGE_TIME_FALLBACK_SECONDS = 12 * 60; // 12 minutes
+const PAGE_TIME_FALLBACK_SECONDS = 21 * 60 + 50; // 21:50 — pitch moment
 
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
