@@ -619,9 +619,12 @@ function Index() {
           {step === 3 && (
             <div className="mt-6 sm:mt-8 flex flex-col items-center text-center">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight text-foreground break-words">
-                Congratulations{name ? `, ${name}` : ""} — there are{" "}
-                <span className="text-emerald-600">$2,350.00</span> available in
-                your name.
+                Good news{name ? `, ${name}` : ""} — your estimated amount is up
+                to{" "}
+                <span className="text-emerald-600">
+                  {formatUSD(estimatedAmountFromRecord(recordId))}
+                </span>
+                .
               </h2>
               {stateVal && (
                 <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
@@ -630,9 +633,14 @@ function Index() {
               )}
 
               <div className="my-6 sm:my-8 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-emerald-600">
-                $2,350.00
+                {formatUSD(estimatedAmountFromRecord(recordId))}
               </div>
-              <p className="text-xs font-medium text-muted-foreground break-all">
+              <p className="mx-auto max-w-md text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                * Estimated figure based on publicly available data for your
+                profile. Final amount, eligibility and approval are not
+                guaranteed and depend on individual verification.
+              </p>
+              <p className="mt-3 text-xs font-medium text-muted-foreground break-all">
                 Record #: {recordId}
               </p>
 
