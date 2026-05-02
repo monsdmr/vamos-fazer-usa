@@ -8,14 +8,11 @@ import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 // Time in seconds when the pitch begins and the CTA unlocks
 // Reveal CTA 35s earlier than the original pitch moment (20:20 → 19:45).
 // Math.max guards against negative values if the offset is ever changed.
-const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 - 40 - 35); // 19:45
-const PLAYER_ELEMENT_ID = "ab-69f140ee2e62e594e34723cd";
-const PLAYER_VARIATION_IDS = [
-  PLAYER_ELEMENT_ID,
-  "69f0e02d6cda6b6e2e6339e9",
-  "69f0e07396260377bd152421",
-  "69f0e0ebccff5745f0eccfb6",
-];
+// CTA reveals 35s before the pitch moment (21:45 → 21:10).
+const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45 - 35); // 21:10
+const PLAYER_ID = "69f0e07396260377bd152421";
+const PLAYER_ELEMENT_ID = `vid-${PLAYER_ID}`;
+const PLAYER_VARIATION_IDS = [PLAYER_ELEMENT_ID, PLAYER_ID];
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
@@ -51,7 +48,7 @@ export const Route = createFileRoute("/vsl")({
     links: [
       {
         rel: "preload",
-        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
+        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js",
         as: "script",
         fetchPriority: "high",
       },
@@ -62,7 +59,7 @@ export const Route = createFileRoute("/vsl")({
       },
       {
         rel: "preload",
-        href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f140ee2e62e594e34723cd/thumbnail.jpg",
+        href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/thumbnail.jpg",
         as: "image",
         fetchPriority: "high",
       },
@@ -83,7 +80,7 @@ export const Route = createFileRoute("/vsl")({
 });
 
 const PLAYER_SRC =
-  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
+  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js";
 
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
