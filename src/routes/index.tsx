@@ -113,6 +113,32 @@ function generateRecordId() {
   return `FR-${id}`;
 }
 
+// Deterministic amount based on the recordId so the same user keeps the same
+// number across re-renders. Range avoids the round, suspicious-looking $2,350.00
+// and gives every lead a slightly different estimate (FTC-friendlier).
+function estimatedAmountFromRecord(recordId: string) {
+  let h = 0;
+  for (let i = 0; i < recordId.length; i++) {
+    h = ((h << 5) - h) + recordId.charCodeAt(i);
+    h |= 0;
+  }
+  // Range: $1,820.00 – $3,180.00, steps of $10
+  const min = 1820;
+  const max = 3180;
+  const range = (max - min) / 10 + 1;
+  const cents = (min + (Math.abs(h) % range) * 10) * 100;
+  return cents / 100;
+}
+
+function formatUSD(value: number) {
+  return value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 const VSL_THUMB =
   "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/thumbnail.jpg";
 
