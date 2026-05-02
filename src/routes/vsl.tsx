@@ -8,8 +8,8 @@ import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 // Time in seconds when the pitch begins and the CTA unlocks
 // Reveal CTA 35s earlier than the original pitch moment (20:20 → 19:45).
 // Math.max guards against negative values if the offset is ever changed.
-// CTA reveals 35s before the pitch moment (21:45 → 21:10).
-const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45 - 35); // 21:10
+// CTA reveals exactly at the pitch moment (21:45).
+const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45); // 21:45
 const PLAYER_ID = "69f0e07396260377bd152421";
 const PLAYER_ELEMENT_ID = `vid-${PLAYER_ID}`;
 const PLAYER_VARIATION_IDS = [PLAYER_ELEMENT_ID, PLAYER_ID];
