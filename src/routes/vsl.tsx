@@ -6,7 +6,9 @@ import { FlagUS } from "../components/Flag";
 import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 
 // Time in seconds when the pitch begins and the CTA unlocks
-const PITCH_REVEAL_SECONDS = 21 * 60 - 40; // 20:20
+// Reveal CTA 35s earlier than the original pitch moment (20:20 → 19:45).
+// Math.max guards against negative values if the offset is ever changed.
+const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 - 40 - 35); // 19:45
 const PLAYER_ELEMENT_ID = "ab-69f140ee2e62e594e34723cd";
 const PLAYER_VARIATION_IDS = [
   PLAYER_ELEMENT_ID,
