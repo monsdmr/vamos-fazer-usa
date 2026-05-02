@@ -236,7 +236,7 @@ function VslPage() {
             <div className="min-w-0 leading-tight">
               <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
               <div className="truncate text-[10px] text-white/70 sm:text-xs">
-                Verify if there are restitutions
+                Check for unclaimed funds
               </div>
             </div>
           </Link>
@@ -366,7 +366,7 @@ function VslPage() {
           </div>
           <p className="mt-4 leading-relaxed">
             This service is informational only and does not guarantee approval
-            of any restitution. © {new Date().getFullYear()} Official Check.
+            of any unclaimed funds. © {new Date().getFullYear()} Official Check.
           </p>
         </div>
       </footer>

@@ -425,7 +425,7 @@ function Index() {
             <div className="min-w-0 leading-tight">
               <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
               <div className="truncate text-[10px] text-white/70 sm:text-xs">
-                Verify if there are restitutions
+                Check for unclaimed funds
               </div>
             </div>
           </div>
@@ -440,7 +440,7 @@ function Index() {
             Official verification system
           </div>
           <h1 className="text-xl font-bold leading-snug sm:text-2xl md:text-3xl">
-            Check if there are restitutions in your name —
+            Check for unclaimed funds in your name —
             <span className="text-emerald-300"> response in 10 seconds</span>
           </h1>
           <p className="mt-2 max-w-2xl text-xs text-white/70 sm:text-sm">
@@ -637,7 +637,7 @@ function Index() {
               </h2>
               {stateVal && (
                 <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                  State selected: {stateVal}.
+                  State: {stateVal}.
                 </p>
               )}
 
@@ -717,7 +717,7 @@ function Index() {
           </div>
           <p className="mt-4 leading-relaxed">
             This service is informational only and does not guarantee approval
-            of any restitution. All data is processed securely and never shared
+            of any unclaimed funds. All data is processed securely and never shared
             without your consent. © {new Date().getFullYear()} Official Check.
             All rights reserved.
           </p>
