@@ -63,6 +63,11 @@ export const Route = createFileRoute("/vsl")({
         as: "image",
         fetchPriority: "high",
       },
+      {
+        rel: "preload",
+        href: "https://cdn.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/69f0e03fd1a8ae1ba069a960/main.m3u8",
+        as: "fetch",
+      },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
       { rel: "dns-prefetch", href: "https://images.converteai.net" },
