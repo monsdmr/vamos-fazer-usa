@@ -314,11 +314,10 @@ function Index() {
     // Read live values from the DOM as a fallback in case React state is stale
     // (e.g. mobile autofill or race between checkbox toggle and submit click).
     const liveName = (nameInputRef.current?.value ?? name).trim();
-    const livePhoneRaw = phoneInputRef.current?.value ?? phone;
     const liveState = stateSelectRef.current?.value ?? stateVal;
     const liveAuthorized = authorizedRef.current?.checked ?? authorized;
 
-    // Validate name + state + consent first
+    // Validate name + state + consent
     if (!liveName) {
       setError("Please enter your full name.");
       return;
@@ -332,30 +331,36 @@ function Index() {
       return;
     }
 
-    // Validate phone (NANP/E.164). Block submit on any failure with specific message.
-    const phoneCheck = validateUSPhone(livePhoneRaw);
-    if (!phoneCheck.ok) {
-      setPhoneError(phoneCheck.error);
-      setError(phoneCheck.error);
-      // Focus the phone field so the user can correct it immediately
-      phoneInputRef.current?.focus();
-      return;
+    // ── PHONE COLLECTION (TEMPORARILY DISABLED) ────────────────────────────
+    // Phone field was removed from the UI to reduce form friction. To re-enable:
+    //   1) Restore the Phone Number <input> block in the JSX (see git history).
+    //   2) Uncomment the validateUSPhone() call below.
+    //   3) Restore the phone-related sessionStorage + dataLayer fields.
+    // The dataLayer schema below intentionally still emits empty lead_phone /
+    // lead_phone_e164 / lead_phone_digits keys so any GTM tag / pixel mapping
+    // configured for them keeps working without changes.
+    // ───────────────────────────────────────────────────────────────────────
+    const livePhoneRaw = phoneInputRef.current?.value ?? phone;
+    let formattedPhone = "";
+    let phoneE164 = "";
+    let livePhoneDigits = "";
+    if (livePhoneRaw) {
+      const phoneCheck = validateUSPhone(livePhoneRaw);
+      if (phoneCheck.ok) {
+        formattedPhone = phoneCheck.formatted;
+        phoneE164 = phoneCheck.e164;
+        livePhoneDigits = phoneE164.slice(2);
+      }
     }
-
-    const formattedPhone = phoneCheck.formatted;
-    const phoneE164 = phoneCheck.e164; // e.g. +15551234567
-    const livePhoneDigits = phoneE164.slice(2); // 10 digits, no country code
 
     // Sync state back in case fallback values were used
     if (liveName !== name) setName(liveName);
     if (liveState !== stateVal) setStateVal(liveState);
     if (liveAuthorized !== authorized) setAuthorized(liveAuthorized);
-    if (formattedPhone !== phone) setPhone(formattedPhone);
     setPhoneError("");
 
     // Hide mobile keyboard so the loader/CTA isn't pushed off-screen
     nameInputRef.current?.blur();
-    phoneInputRef.current?.blur();
     stateSelectRef.current?.blur();
     if (typeof document !== "undefined" && document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -368,19 +373,20 @@ function Index() {
     // Persist lead data for the next step (VSL / checkout)
     try {
       if (typeof window !== "undefined") {
-        // Canonical keys consumed by /vsl checkout
-        sessionStorage.setItem("lead_phone", formattedPhone);
         sessionStorage.setItem("lead_name", liveName);
         sessionStorage.setItem("lead_state", liveState);
         sessionStorage.setItem("click_id", clickId);
-        // Legacy/extra keys still used by other components for prefill
         sessionStorage.setItem("oc_full_name", liveName);
-        sessionStorage.setItem("oc_phone", formattedPhone);
-        sessionStorage.setItem("oc_phone_e164", phoneE164);
+        if (formattedPhone) {
+          sessionStorage.setItem("lead_phone", formattedPhone);
+          sessionStorage.setItem("oc_phone", formattedPhone);
+          sessionStorage.setItem("oc_phone_e164", phoneE164);
+        }
       }
     } catch {}
 
-    // GTM dataLayer push — fired BEFORE any redirect/step change
+    // GTM dataLayer push — preserves phone keys (empty when not collected) so
+    // existing GTM tags / pixel mappings keep working if we re-enable phone.
     try {
       if (typeof window !== "undefined") {
         const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
