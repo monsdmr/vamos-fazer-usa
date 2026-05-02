@@ -129,6 +129,15 @@ function VslPage() {
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
+  // Personalized values from the home form (fall back to neutral copy if missing)
+  const [leadName, setLeadName] = useState("");
+  const [leadAmount, setLeadAmount] = useState("");
+  useEffect(() => {
+    try {
+      setLeadName((sessionStorage.getItem("lead_name") || "").split(/\s+/)[0] || "");
+      setLeadAmount(sessionStorage.getItem("lead_amount_formatted") || "");
+    } catch {}
+  }, []);
   // Loading state for the checkout CTA — prevents double-click while the
   // dataLayer push is processing and the redirect is in flight.
   const [isCheckingOut, setIsCheckingOut] = useState(false);
