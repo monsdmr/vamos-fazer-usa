@@ -32,17 +32,17 @@ export const Route = createFileRoute("/vsl")({
   ssr: true,
   head: () => ({
     meta: [
-      { title: "Watch the Official Video — Official Check" },
+      { title: "How to Claim Your Unclaimed Funds — American System" },
       {
         name: "description",
         content:
-          "Watch the official video to learn how to receive the available amount in your name.",
+          "Watch the short walkthrough and follow the official steps to claim the funds available under your name.",
       },
-      { property: "og:title", content: "Watch the Official Video — Official Check" },
+      { property: "og:title", content: "How to Claim Your Unclaimed Funds" },
       {
         property: "og:description",
         content:
-          "Watch the official video to learn how to receive the available amount.",
+          "Short walkthrough showing exactly how to claim the funds available under your name.",
       },
     ],
     links: [
