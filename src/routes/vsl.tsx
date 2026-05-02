@@ -329,14 +329,9 @@ function VslPage() {
               </span>
             </a>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-4 py-4 sm:gap-6">
-              <div
-                className="h-12 w-12 animate-spin rounded-full border-[3px] border-[var(--brand)]/20 border-t-[var(--brand)] sm:h-14 sm:w-14"
-                role="status"
-                aria-label="Loading"
-              />
-              <p className="text-center text-lg font-bold text-[var(--brand)] sm:text-xl md:text-2xl">
-                Required to Follow
+            <div className="flex flex-col items-center justify-center gap-2 py-4">
+              <p className="text-center text-sm font-medium text-muted-foreground sm:text-base">
+                Watch the video to unlock your access
               </p>
             </div>
           )}
