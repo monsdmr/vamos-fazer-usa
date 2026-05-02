@@ -278,8 +278,7 @@ function VslPage() {
           {ctaUnlocked ? (
             <a
               href={checkoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               referrerPolicy="no-referrer"
               aria-disabled={isCheckingOut}
               tabIndex={isCheckingOut ? -1 : 0}
