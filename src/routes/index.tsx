@@ -492,52 +492,9 @@ function Index() {
                 </div>
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-foreground">
-                  Phone Number
-                </label>
-                <div className="relative">
-                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <span className="pointer-events-none absolute left-9 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
-                    +1
-                  </span>
-                  <input
-                    ref={phoneInputRef}
-                    type="tel"
-                    inputMode="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(formatUSPhone(e.target.value));
-                      if (phoneError) setPhoneError("");
-                    }}
-                    onBlur={(e) => {
-                      const v = e.target.value;
-                      if (!v) return;
-                      const check = validateUSPhone(v);
-                      setPhoneError(check.ok ? "" : check.error);
-                    }}
-                    placeholder="(555) 123-4567"
-                    maxLength={14}
-                    aria-invalid={phoneError ? true : undefined}
-                    aria-describedby="phone-help phone-error"
-                    className={`w-full rounded-md border bg-white py-2.5 pl-16 pr-3 text-sm shadow-sm outline-none transition-colors focus:ring-2 ${
-                      phoneError
-                        ? "border-destructive focus:border-destructive focus:ring-destructive/20"
-                        : "border-input focus:border-[var(--brand)] focus:ring-[var(--brand)]/20"
-                    }`}
-                    autoComplete="tel-national"
-                  />
-                </div>
-                {phoneError ? (
-                  <p id="phone-error" className="mt-1 text-[12px] font-medium text-destructive">
-                    {phoneError}
-                  </p>
-                ) : (
-                  <p id="phone-help" className="mt-1 text-[11px] text-muted-foreground">
-                    US format: (XXX) XXX-XXXX
-                  </p>
-                )}
-              </div>
+              {/* Phone Number field temporarily disabled — see handleSubmit
+                  for re-enable instructions. The dataLayer schema still emits
+                  empty phone keys so GTM mappings stay intact. */}
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-foreground">
