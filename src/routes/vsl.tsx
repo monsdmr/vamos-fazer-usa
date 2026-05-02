@@ -420,3 +420,55 @@ function VslPage() {
     </div>
   );
 }
+
+function CtaButton({
+  checkoutUrl,
+  isCheckingOut,
+  onBeginCheckout,
+  compact = false,
+}: {
+  checkoutUrl: string;
+  isCheckingOut: boolean;
+  onBeginCheckout: () => boolean;
+  compact?: boolean;
+}) {
+  return (
+    <a
+      href={checkoutUrl}
+      rel="noopener"
+      referrerPolicy="no-referrer"
+      aria-disabled={isCheckingOut}
+      tabIndex={isCheckingOut ? -1 : 0}
+      onClick={(e) => {
+        if (isCheckingOut) {
+          e.preventDefault();
+          return;
+        }
+        onBeginCheckout();
+      }}
+      aria-label="Exclusive offer — only now"
+      className={`exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full text-center font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] ${
+        compact ? "px-6 py-3.5 text-sm sm:text-base" : "px-8 py-5 text-base sm:text-lg"
+      } ${isCheckingOut ? "pointer-events-none opacity-80" : ""}`}
+      style={{
+        background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
+      }}
+    >
+      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+      <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-sm">
+        {isCheckingOut ? (
+          <>
+            <span
+              className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#1a2332]/30 border-t-[#1a2332]"
+              role="status"
+              aria-label="Processing"
+            />
+            PROCESSING…
+          </>
+        ) : (
+          "EXCLUSIVE OFFER! ONLY NOW"
+        )}
+      </span>
+    </a>
+  );
+}
