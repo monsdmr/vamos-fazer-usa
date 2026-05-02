@@ -321,6 +321,60 @@ function Index() {
       document.head.appendChild(imgLink);
     }
 
+    // 4. Pre-fetch the HLS playlist + first video segment so playback starts
+    // instantly on /vsl. The smartplayer's main.m3u8 lists .ts segments;
+    // warming the playlist alone already saves ~1 RTT, and a follow-up fetch
+    // of the first segment primes the disk/HTTP cache.
+    const M3U8_URL =
+      "https://cdn.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/69f0e03fd1a8ae1ba069a960/main.m3u8";
+    if (!document.querySelector(`link[data-vsl-m3u8]`)) {
+      const m3u8Link = document.createElement("link");
+      m3u8Link.rel = "preload";
+      m3u8Link.as = "fetch";
+      m3u8Link.href = M3U8_URL;
+      m3u8Link.crossOrigin = "anonymous";
+      m3u8Link.setAttribute("data-vsl-m3u8", "true");
+      document.head.appendChild(m3u8Link);
+    }
+    // Parse the playlist and pre-fetch the first segment URL it references.
+    if (!sessionStorage.getItem("vsl_first_segment_warmed")) {
+      fetch(M3U8_URL, { credentials: "omit" })
+        .then((r) => (r.ok ? r.text() : ""))
+        .then((text) => {
+          if (!text) return;
+          const lines = text.split(/\r?\n/);
+          // First non-comment, non-empty line after the header is the first
+          // sub-playlist or segment. For master playlists, that's another
+          // .m3u8; fetch it too, then grab its first segment.
+          const firstRef = lines.find(
+            (l) => l && !l.startsWith("#"),
+          );
+          if (!firstRef) return;
+          const base = M3U8_URL.replace(/[^/]+$/, "");
+          const url = firstRef.startsWith("http") ? firstRef : base + firstRef;
+          if (url.endsWith(".m3u8")) {
+            return fetch(url, { credentials: "omit" })
+              .then((r) => (r.ok ? r.text() : ""))
+              .then((sub) => {
+                const seg = sub
+                  .split(/\r?\n/)
+                  .find((l) => l && !l.startsWith("#"));
+                if (!seg) return;
+                const segBase = url.replace(/[^/]+$/, "");
+                const segUrl = seg.startsWith("http") ? seg : segBase + seg;
+                return fetch(segUrl, { credentials: "omit" });
+              });
+          }
+          return fetch(url, { credentials: "omit" });
+        })
+        .then(() => {
+          try {
+            sessionStorage.setItem("vsl_first_segment_warmed", "1");
+          } catch {}
+        })
+        .catch(() => {});
+    }
+
     const interval = setInterval(() => {
       setLoadingIdx((i) => Math.min(i + 1, LOADING_MESSAGES.length - 1));
     }, 700);
