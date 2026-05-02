@@ -87,8 +87,24 @@ export const Route = createFileRoute("/vsl")({
 const PLAYER_SRC =
   "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js";
 
+// Page-time fallback: if for any reason the player time-tracking fails
+// (player error, user reload past pitch moment, autoplay blocked, etc.),
+// unlock the CTA after this many seconds on the page so the funnel never
+// dead-ends. Set slightly below the pitch moment so it's a true safety net.
+const PAGE_TIME_FALLBACK_SECONDS = 12 * 60; // 12 minutes
+
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
+
+  // Page-time fallback unlock — silent (no visible counter)
+  const [pageTimeUnlocked, setPageTimeUnlocked] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(
+      () => setPageTimeUnlocked(true),
+      PAGE_TIME_FALLBACK_SECONDS * 1000,
+    );
+    return () => window.clearTimeout(t);
+  }, []);
 
   // Debug-only bypass: ?debug_unlock=1 reveals the CTA immediately, but ONLY
   // in non-production environments (localhost or lovable preview/sandbox hosts).
@@ -109,7 +125,7 @@ function VslPage() {
     } catch {}
   }, []);
 
-  const ctaUnlocked = watchedTimeUnlocked || debugUnlocked;
+  const ctaUnlocked = watchedTimeUnlocked || pageTimeUnlocked || debugUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
