@@ -254,12 +254,20 @@ function VslPage() {
         {/* Hero */}
         <div className="mx-auto max-w-6xl px-4 pb-6 pt-4 sm:px-6 sm:pb-10 sm:pt-6">
           <h1 className="text-xl font-bold leading-snug sm:text-2xl md:text-3xl">
-            Welcome
+            {leadName ? `Welcome, ${leadName}` : "Welcome"}
           </h1>
           <p className="mt-2 text-xs text-white/80 sm:text-sm">
-            You have{" "}
-            <span className="font-semibold text-emerald-300">$2,350.00</span>{" "}
-            available for claim.
+            {leadAmount ? (
+              <>
+                Your estimated amount is up to{" "}
+                <span className="font-semibold text-emerald-300">{leadAmount}</span>.
+              </>
+            ) : (
+              <>Your estimated amount is ready to review.</>
+            )}{" "}
+            <span className="block text-[10px] text-white/60 sm:inline sm:text-[11px]">
+              * Estimate only — eligibility and final amount are not guaranteed.
+            </span>
           </p>
         </div>
       </header>
@@ -268,8 +276,10 @@ function VslPage() {
       <main className="mx-auto max-w-4xl px-3 py-6 sm:px-4 sm:py-10">
         <div className="text-center">
           <p className="text-sm font-semibold text-foreground sm:text-base md:text-lg">
-            Watch the official video:{" "}
-            <span className="underline">"How to Receive $2,350.00"</span>
+            Watch the short walkthrough:{" "}
+            <span className="underline">
+              "How to Claim {leadAmount ? `Up to ${leadAmount}` : "Your Funds"}"
+            </span>
           </p>
           <ArrowDown className="mx-auto mt-3 h-5 w-5 animate-bounce text-muted-foreground" />
         </div>
