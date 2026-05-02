@@ -87,8 +87,24 @@ export const Route = createFileRoute("/vsl")({
 const PLAYER_SRC =
   "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js";
 
+// Page-time fallback: if for any reason the player time-tracking fails
+// (player error, user reload past pitch moment, autoplay blocked, etc.),
+// unlock the CTA after this many seconds on the page so the funnel never
+// dead-ends. Set slightly below the pitch moment so it's a true safety net.
+const PAGE_TIME_FALLBACK_SECONDS = 12 * 60; // 12 minutes
+
 function VslPage() {
   const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
+
+  // Page-time fallback unlock — silent (no visible counter)
+  const [pageTimeUnlocked, setPageTimeUnlocked] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(
+      () => setPageTimeUnlocked(true),
+      PAGE_TIME_FALLBACK_SECONDS * 1000,
+    );
+    return () => window.clearTimeout(t);
+  }, []);
 
   // Debug-only bypass: ?debug_unlock=1 reveals the CTA immediately, but ONLY
   // in non-production environments (localhost or lovable preview/sandbox hosts).
@@ -109,7 +125,7 @@ function VslPage() {
     } catch {}
   }, []);
 
-  const ctaUnlocked = watchedTimeUnlocked || debugUnlocked;
+  const ctaUnlocked = watchedTimeUnlocked || pageTimeUnlocked || debugUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
@@ -220,7 +236,7 @@ function VslPage() {
             <div className="min-w-0 leading-tight">
               <div className="truncate text-sm font-bold sm:text-base">Official Check</div>
               <div className="truncate text-[10px] text-white/70 sm:text-xs">
-                Verify if there are restitutions
+                Check for unclaimed funds
               </div>
             </div>
           </Link>
@@ -262,8 +278,7 @@ function VslPage() {
           {ctaUnlocked ? (
             <a
               href={checkoutUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               referrerPolicy="no-referrer"
               aria-disabled={isCheckingOut}
               tabIndex={isCheckingOut ? -1 : 0}
@@ -314,14 +329,9 @@ function VslPage() {
               </span>
             </a>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-4 py-4 sm:gap-6">
-              <div
-                className="h-12 w-12 animate-spin rounded-full border-[3px] border-[var(--brand)]/20 border-t-[var(--brand)] sm:h-14 sm:w-14"
-                role="status"
-                aria-label="Loading"
-              />
-              <p className="text-center text-lg font-bold text-[var(--brand)] sm:text-xl md:text-2xl">
-                Required to Follow
+            <div className="flex flex-col items-center justify-center gap-2 py-4">
+              <p className="text-center text-sm font-medium text-muted-foreground sm:text-base">
+                Watch the video to unlock your access
               </p>
             </div>
           )}
@@ -356,7 +366,7 @@ function VslPage() {
           </div>
           <p className="mt-4 leading-relaxed">
             This service is informational only and does not guarantee approval
-            of any restitution. © {new Date().getFullYear()} Official Check.
+            of any unclaimed funds. © {new Date().getFullYear()} Official Check.
           </p>
         </div>
       </footer>
