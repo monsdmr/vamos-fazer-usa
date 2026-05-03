@@ -120,6 +120,7 @@ function VslPage() {
         host === "127.0.0.1" ||
         host.endsWith(".lovable.app") ||
         host.endsWith(".lovableproject.com") ||
+        host.endsWith(".lovableproject.dev") ||
         host.endsWith(".lovable.dev");
       if (isDev) setDebugUnlocked(true);
     } catch {}
