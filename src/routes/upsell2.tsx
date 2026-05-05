@@ -12,7 +12,7 @@ const CTA_REVEAL_SECONDS = 1 * 60 + 43; // 1:43 (matches reference pitchTime)
 const PLAYER_ID = "69a9a113a61fe7c3c1d80e95";
 const PLAYER_SRC = `https://scripts.converteai.net/f60c6c24-93af-4941-ad66-43dcc36feb4a/players/${PLAYER_ID}/v4/player.js`;
 
-const YES_URL = "https://www.checkout-ds24.com/answer/yes?template=25753";
+const YES_URL = "https://www.checkout-ds24.com/answer/yes?template=light&product=686112";
 const NO_URL = "https://www.checkout-ds24.com/answer/no";
 
 const ACCENT = "#085D8A";

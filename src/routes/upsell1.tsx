@@ -14,7 +14,7 @@ const CTA_REVEAL_SECONDS = 3 * 60 + 40; // 3:40
 const PLAYER_ID = "69a9a10b707a2230877f705e";
 const PLAYER_SRC = `https://scripts.converteai.net/f60c6c24-93af-4941-ad66-43dcc36feb4a/players/${PLAYER_ID}/v4/player.js`;
 
-const YES_URL = "https://www.checkout-ds24.com/answer/yes?template=25753";
+const YES_URL = "https://www.checkout-ds24.com/answer/yes?template=light&product=687074";
 const NO_URL = "https://www.checkout-ds24.com/answer/no";
 
 // <vturb-smartplayer> JSX type is already declared in src/routes/vsl.tsx
