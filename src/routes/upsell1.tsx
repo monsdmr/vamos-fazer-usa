@@ -33,6 +33,11 @@ export const Route = createFileRoute("/upsell1")({
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
       { rel: "dns-prefetch", href: "https://images.converteai.net" },
+      { rel: "dns-prefetch", href: "https://www.digistore24-scripts.com" },
+    ],
+    scripts: [
+      { src: "https://www.digistore24-scripts.com/service/digistore.js", async: true },
+      { children: `window.addEventListener('load',function(){try{if(typeof digistoreUpsell==='function')digistoreUpsell();}catch(e){}});` },
     ],
   }),
   component: UpsellPage,
