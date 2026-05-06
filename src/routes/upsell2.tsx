@@ -4,6 +4,7 @@ import { UpsellFooter } from "@/components/UpsellFooter";
 import { UpsellProgress } from "@/components/UpsellProgress";
 import { UpsellPriceBlock } from "@/components/UpsellPriceBlock";
 import { useVturbWatchTime } from "@/hooks/useVturbWatchTime";
+import { useDigistoreUpsell } from "@/hooks/useDigistoreUpsell";
 
 // Reveal CTA after the user has actually watched this many seconds of the video
 const CTA_REVEAL_SECONDS = 1 * 60 + 43; // 1:43 (matches reference pitchTime)
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/upsell2")({
 
 function Upsell2Page() {
   const ctaUnlocked = useVturbWatchTime([`vid-${PLAYER_ID}`, PLAYER_ID], CTA_REVEAL_SECONDS);
+  useDigistoreUpsell(ctaUnlocked);
 
   useEffect(() => {
     const ID = "vturb-upsell2-script";
