@@ -97,77 +97,81 @@ function UpsellPage() {
         </div>
       </header>
 
-      <UpsellProgress currentStep={1} />
+      <div className="flex-1 flex flex-col items-center">
+        <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
+          <UpsellProgress currentStep={1} />
 
-      {/* Title */}
-      <section className="mx-auto w-full max-w-3xl px-4 pt-6 sm:pt-12 text-center">
-        <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
-          Your Order Is Not Complete Yet
-        </h1>
-        <h2 className="mt-2 text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
-          Please Watch This Important Message Below Now
-        </h2>
-      </section>
-
-      {/* Video */}
-      <section className="mx-auto w-full max-w-4xl px-3 sm:px-4 mt-6">
-        <div className="-mx-3 overflow-hidden shadow-2xl sm:mx-0 sm:rounded-xl bg-black">
-          <vturb-smartplayer
-            id={`vid-${PLAYER_ID}`}
-            style={{ display: "block", margin: "0 auto", width: "100%" }}
-          />
+          {/* Title */}
+          <section className="w-full px-4 pt-6 sm:pt-12 text-center">
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
+              Your Order Is Not Complete Yet
+            </h1>
+            <h2 className="mt-2 text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">
+              Please Watch This Important Message Below Now
+            </h2>
+          </section>
         </div>
-      </section>
 
-      {/* Processing block — visible until the CTA unlocks */}
-      {!ctaUnlocked && (
-        <section className="mx-auto w-full max-w-3xl px-4 mt-8 text-center animate-fade-in">
-          <h2 className="text-xl sm:text-2xl font-bold">Processing your request...</h2>
-          <div className="mt-4 flex justify-center">
-            <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-[#0e2a3a] animate-spin" />
+        {/* Video */}
+        <section className="w-full max-w-4xl px-3 sm:px-4 mt-6">
+          <div className="-mx-3 overflow-hidden shadow-2xl sm:mx-0 sm:rounded-xl bg-black">
+            <vturb-smartplayer
+              id={`vid-${PLAYER_ID}`}
+              style={{ display: "block", margin: "0 auto", width: "100%" }}
+            />
           </div>
-          <p className="mt-4 text-slate-500 text-sm sm:text-base">
-            Connecting to financial verification system...
-          </p>
+        </section>
 
-          {/* Fake progress bar */}
-          <div className="mt-6">
-            <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
-              <div
-                className="h-full bg-[#CC1212]"
-                style={{ width: "99%", transition: "width 1s ease" }}
-              />
+        {/* Processing block — visible until the CTA unlocks */}
+        {!ctaUnlocked && (
+          <section className="w-full max-w-3xl px-4 mt-8 text-center animate-fade-in">
+            <h2 className="text-xl sm:text-2xl font-bold">Processing your request...</h2>
+            <div className="mt-4 flex justify-center">
+              <div className="h-10 w-10 rounded-full border-4 border-slate-200 border-t-[#0e2a3a] animate-spin" />
             </div>
-            <div className="mt-2 text-right text-xs font-semibold text-slate-500">99%</div>
-          </div>
-        </section>
-      )}
+            <p className="mt-4 text-slate-500 text-sm sm:text-base">
+              Connecting to financial verification system...
+            </p>
 
-      {/* CTA buttons — appear right under the video once 3:40 is reached */}
-      {ctaUnlocked && (
-        <section className="mx-auto w-full max-w-3xl px-4 mt-6 mb-12 flex flex-col items-center gap-5 animate-fade-in">
-          <UpsellPriceBlock price="$47.00" recurring="$47.00 every 30 days, until canceled!" />
-          <a
-            href={YES_URL}
-            rel="noreferrer"
-            referrerPolicy="no-referrer"
-            className="w-full inline-flex items-center justify-center px-4 py-4 sm:px-8 sm:py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-sm sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98] text-center break-words"
-            style={{
-              animation: "upsellPulse 1.6s ease-in-out infinite",
-            }}
-          >
-            I WON'T LET IT ESCAPE
-          </a>
-          <a
-            href={NO_URL}
-            rel="noreferrer"
-            referrerPolicy="no-referrer"
-            className="text-slate-400 hover:text-slate-600 underline text-sm"
-          >
-            I don't want to increase my benefit.
-          </a>
-        </section>
-      )}
+            {/* Fake progress bar */}
+            <div className="mt-6">
+              <div className="h-3 w-full rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-[#CC1212]"
+                  style={{ width: "99%", transition: "width 1s ease" }}
+                />
+              </div>
+              <div className="mt-2 text-right text-xs font-semibold text-slate-500">99%</div>
+            </div>
+          </section>
+        )}
+
+        {/* CTA buttons — appear right under the video once 3:40 is reached */}
+        {ctaUnlocked && (
+          <section className="w-full max-w-3xl px-4 mt-6 mb-12 flex flex-col items-center gap-5 animate-fade-in">
+            <UpsellPriceBlock price="$47.00" recurring="$47.00 every 30 days, until canceled!" />
+            <a
+              href={YES_URL}
+              rel="noreferrer"
+              referrerPolicy="no-referrer"
+              className="w-full inline-flex items-center justify-center px-4 py-4 sm:px-8 sm:py-5 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold uppercase tracking-wide text-sm sm:text-lg shadow-lg shadow-emerald-600/30 transition-transform active:scale-[0.98] text-center break-words"
+              style={{
+                animation: "upsellPulse 1.6s ease-in-out infinite",
+              }}
+            >
+              I WON'T LET IT ESCAPE
+            </a>
+            <a
+              href={NO_URL}
+              rel="noreferrer"
+              referrerPolicy="no-referrer"
+              className="text-slate-400 hover:text-slate-600 underline text-sm"
+            >
+              I don't want to increase my benefit.
+            </a>
+          </section>
+        )}
+      </div>
 
       <UpsellFooter />
 
