@@ -49,7 +49,7 @@ export function useVturbWatchTime(playerElementId: string | string[], revealSeco
         inst.analytics?.player?.options?.id,
       ].filter((id): id is string => typeof id === "string" && id.length > 0);
 
-      return ids.length === 0 || ids.some((id) => targetIds.has(id));
+      return ids.length === 0 || ids.some((id) => targetIds.has(id) || targetIds.has(id.replace(/^vid-/, "")));
     };
 
     const getSmartplayerInstances = (): SmartplayerCompatInstance[] => {
