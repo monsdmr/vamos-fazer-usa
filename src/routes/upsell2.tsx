@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UpsellFooter } from "@/components/UpsellFooter";
 import { UpsellProgress } from "@/components/UpsellProgress";
 import { UpsellPriceBlock } from "@/components/UpsellPriceBlock";
@@ -45,7 +45,19 @@ export const Route = createFileRoute("/upsell2")({
 });
 
 function Upsell2Page() {
-  const ctaUnlocked = useVturbWatchTime([`vid-${PLAYER_ID}`, PLAYER_ID], CTA_REVEAL_SECONDS);
+  const watchedTimeUnlocked = useVturbWatchTime([`vid-${PLAYER_ID}`, PLAYER_ID], CTA_REVEAL_SECONDS);
+
+  // Fallback: unlock after CTA_REVEAL_SECONDS + 10s on page if player fails
+  const [pageTimeUnlocked, setPageTimeUnlocked] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(
+      () => setPageTimeUnlocked(true),
+      (CTA_REVEAL_SECONDS + 10) * 1000
+    );
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const ctaUnlocked = watchedTimeUnlocked || pageTimeUnlocked;
   useDigistoreUpsell(ctaUnlocked);
 
   useEffect(() => {
