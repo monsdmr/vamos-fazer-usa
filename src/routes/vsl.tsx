@@ -366,22 +366,7 @@ function VslPage() {
         </div>
       </footer>
 
-      {/* Sticky bottom CTA — appears once unlocked AND inline CTA scrolled away */}
-      {ctaUnlocked && showStickyCta && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.18)] backdrop-blur supports-[backdrop-filter]:bg-white/80 sm:px-4"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
-        >
-          <div className="mx-auto flex max-w-md">
-            <CtaButton
-              checkoutUrl={checkoutUrl}
-              isCheckingOut={isCheckingOut}
-              onBeginCheckout={handleBeginCheckout}
-              compact
-            />
-          </div>
-        </div>
-      )}
+      {/* Sticky CTA disabled — using VTurb player's built-in button instead */}
 
       <style>{`
         @keyframes exclusiveCtaPulse {
