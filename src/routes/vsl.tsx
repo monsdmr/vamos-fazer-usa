@@ -330,25 +330,7 @@ function VslPage() {
           ></vturb-smartplayer>
         </div>
 
-        {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
-        <div
-          ref={inlineCtaRef}
-          className="mt-8 flex flex-col items-center justify-center sm:mt-10"
-        >
-          {ctaUnlocked ? (
-            <CtaButton
-              checkoutUrl={checkoutUrl}
-              isCheckingOut={isCheckingOut}
-              onBeginCheckout={handleBeginCheckout}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-2 py-4">
-              <p className="text-center text-sm font-medium text-muted-foreground sm:text-base">
-                Watch the video to unlock your access
-              </p>
-            </div>
-          )}
-        </div>
+        {/* CTA disabled — using VTurb player's built-in button instead */}
 
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
