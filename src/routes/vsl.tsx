@@ -74,7 +74,7 @@ export const Route = createFileRoute("/vsl")({
 });
 
 const PLAYER_SRC =
-  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js";
+  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 // Page-time fallback: if for any reason the player time-tracking fails
 // (player error, user reload past pitch moment, autoplay blocked, etc.),
