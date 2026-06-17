@@ -61,6 +61,7 @@ export const Route = createFileRoute("/vsl")({
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
       { rel: "dns-prefetch", href: "https://images.converteai.net" },
       { rel: "dns-prefetch", href: "https://m3u8.vturb.net" },
+      { rel: "dns-prefetch", href: "https://license.vturb.com" },
       { rel: "dns-prefetch", href: "https://api.vturb.com.br" },
     ],
     scripts: [
