@@ -10,8 +10,8 @@ import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 // Math.max guards against negative values if the offset is ever changed.
 // CTA reveals exactly at the pitch moment (21:45).
 const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45); // 21:45
-const PLAYER_ID = "69f0e07396260377bd152421";
-const PLAYER_ELEMENT_ID = `vid-${PLAYER_ID}`;
+const PLAYER_ID = "69f140ee2e62e594e34723cd";
+const PLAYER_ELEMENT_ID = `ab-${PLAYER_ID}`;
 const PLAYER_VARIATION_IDS = [PLAYER_ELEMENT_ID, PLAYER_ID];
 
 // Allow the custom element <vturb-smartplayer> in TSX
