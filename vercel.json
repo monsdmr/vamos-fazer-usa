@@ -6,7 +6,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/((?!_build/|assets/|favicon.ico|robots.txt|sitemap.xml|pages.json|404.html).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|_build/|assets/|favicon.ico|robots.txt|sitemap.xml|pages.json|404.html).*)", "destination": "/index.html" }
   ],
   "headers": [
     {

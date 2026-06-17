@@ -13,6 +13,7 @@ import { Route as VslRouteImport } from './routes/vsl'
 import { Route as Upsell3RouteImport } from './routes/upsell3'
 import { Route as Upsell2RouteImport } from './routes/upsell2'
 import { Route as Upsell1RouteImport } from './routes/upsell1'
+import { Route as PainelRouteImport } from './routes/painel'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DisclaimersRefundRouteImport } from './routes/disclaimers.refund'
 import { Route as DisclaimersFtcRouteImport } from './routes/disclaimers.ftc'
@@ -38,6 +39,11 @@ const Upsell1Route = Upsell1RouteImport.update({
   path: '/upsell1',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -61,6 +67,7 @@ const DisclaimersEarningsRoute = DisclaimersEarningsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/painel': typeof PainelRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/painel': typeof PainelRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/painel': typeof PainelRoute
   '/upsell1': typeof Upsell1Route
   '/upsell2': typeof Upsell2Route
   '/upsell3': typeof Upsell3Route
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/painel'
     | '/upsell1'
     | '/upsell2'
     | '/upsell3'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/painel'
     | '/upsell1'
     | '/upsell2'
     | '/upsell3'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/painel'
     | '/upsell1'
     | '/upsell2'
     | '/upsell3'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PainelRoute: typeof PainelRoute
   Upsell1Route: typeof Upsell1Route
   Upsell2Route: typeof Upsell2Route
   Upsell3Route: typeof Upsell3Route
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Upsell1RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PainelRoute: PainelRoute,
   Upsell1Route: Upsell1Route,
   Upsell2Route: Upsell2Route,
   Upsell3Route: Upsell3Route,
