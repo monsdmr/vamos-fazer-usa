@@ -10,8 +10,8 @@ import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 // Math.max guards against negative values if the offset is ever changed.
 // CTA reveals exactly at the pitch moment (21:45).
 const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45); // 21:45
-const PLAYER_ID = "69f0e07396260377bd152421";
-const PLAYER_ELEMENT_ID = `vid-${PLAYER_ID}`;
+const PLAYER_ID = "69f140ee2e62e594e34723cd";
+const PLAYER_ELEMENT_ID = `ab-${PLAYER_ID}`;
 const PLAYER_VARIATION_IDS = [PLAYER_ELEMENT_ID, PLAYER_ID];
 
 // Allow the custom element <vturb-smartplayer> in TSX
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/vsl")({
     links: [
       {
         rel: "preload",
-        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js",
+        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
         as: "script",
         fetchPriority: "high",
       },
@@ -56,18 +56,6 @@ export const Route = createFileRoute("/vsl")({
         rel: "preload",
         href: "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/smartplayer.js",
         as: "script",
-      },
-      {
-        rel: "preload",
-        href: "https://images.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/thumbnail.jpg",
-        as: "image",
-        fetchPriority: "high",
-      },
-      {
-        rel: "preload",
-        href: "https://cdn.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/69f0e03fd1a8ae1ba069a960/main.m3u8",
-        as: "fetch",
-        crossOrigin: "anonymous",
       },
       { rel: "dns-prefetch", href: "https://cdn.converteai.net" },
       { rel: "dns-prefetch", href: "https://scripts.converteai.net" },
@@ -86,7 +74,7 @@ export const Route = createFileRoute("/vsl")({
 });
 
 const PLAYER_SRC =
-  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/players/69f0e07396260377bd152421/v4/player.js";
+  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 // Page-time fallback: if for any reason the player time-tracking fails
 // (player error, user reload past pitch moment, autoplay blocked, etc.),
@@ -261,6 +249,73 @@ function VslPage() {
     s.async = true;
     document.head.appendChild(s);
   }, []);
+
+  // Rewrite the VTurb player's built-in CTA button so it points to our
+  // tracked checkout URL (sid1 + utm_* + first_name/last_name) and fires
+  // the begin_checkout dataLayer event on click. The button lives inside
+  // the smartplayer's shadow DOM, so we poll/observe until it appears and
+  // patch every matching <a>. Re-applied whenever the URL is rebuilt.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!checkoutUrl) return;
+
+    let cancelled = false;
+    const patched = new WeakSet<HTMLAnchorElement>();
+
+    const collectAnchors = (root: ShadowRoot | Document | Element): HTMLAnchorElement[] => {
+      const out: HTMLAnchorElement[] = [];
+      const walk = (node: ShadowRoot | Document | Element) => {
+        node.querySelectorAll?.("a").forEach((a) => out.push(a as HTMLAnchorElement));
+        node.querySelectorAll?.("*").forEach((el) => {
+          const sr = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+          if (sr) walk(sr);
+        });
+      };
+      walk(root);
+      return out;
+    };
+
+    const patchAnchor = (a: HTMLAnchorElement) => {
+      if (patched.has(a)) return;
+      const href = a.getAttribute("href") || "";
+      // Only patch the Digistore CTA — leave any other links alone.
+      if (!/checkout-ds24\.com|digistore24/i.test(href)) return;
+      patched.add(a);
+      a.href = checkoutUrl;
+      a.target = "_self";
+      a.rel = "noopener noreferrer";
+      a.addEventListener(
+        "click",
+        () => {
+          // Refresh href in case tracking changed late, then fire event.
+          a.href = checkoutUrl;
+          handleBeginCheckout();
+        },
+        { capture: true },
+      );
+    };
+
+    const scan = () => {
+      if (cancelled) return;
+      const host = document.getElementById(PLAYER_ELEMENT_ID);
+      if (!host) return;
+      const sr = (host as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+      if (sr) collectAnchors(sr).forEach(patchAnchor);
+      collectAnchors(host).forEach(patchAnchor);
+    };
+
+    const interval = window.setInterval(scan, 600);
+    const initial = window.setTimeout(scan, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.clearTimeout(initial);
+    };
+    // handleBeginCheckout is intentionally omitted — it's stable enough and
+    // including it would re-run this effect on every keystroke of state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkoutUrl]);
 
   return (
     <div
