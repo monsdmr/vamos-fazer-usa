@@ -330,25 +330,7 @@ function VslPage() {
           ></vturb-smartplayer>
         </div>
 
-        {/* Pitch CTA area — shows loader until pitch moment, then reveals button */}
-        <div
-          ref={inlineCtaRef}
-          className="mt-8 flex flex-col items-center justify-center sm:mt-10"
-        >
-          {ctaUnlocked ? (
-            <CtaButton
-              checkoutUrl={checkoutUrl}
-              isCheckingOut={isCheckingOut}
-              onBeginCheckout={handleBeginCheckout}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-2 py-4">
-              <p className="text-center text-sm font-medium text-muted-foreground sm:text-base">
-                Watch the video to unlock your access
-              </p>
-            </div>
-          )}
-        </div>
+        {/* CTA disabled — using VTurb player's built-in button instead */}
 
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
@@ -384,22 +366,7 @@ function VslPage() {
         </div>
       </footer>
 
-      {/* Sticky bottom CTA — appears once unlocked AND inline CTA scrolled away */}
-      {ctaUnlocked && showStickyCta && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-white/95 px-3 py-3 shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.18)] backdrop-blur supports-[backdrop-filter]:bg-white/80 sm:px-4"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
-        >
-          <div className="mx-auto flex max-w-md">
-            <CtaButton
-              checkoutUrl={checkoutUrl}
-              isCheckingOut={isCheckingOut}
-              onBeginCheckout={handleBeginCheckout}
-              compact
-            />
-          </div>
-        </div>
-      )}
+      {/* Sticky CTA disabled — using VTurb player's built-in button instead */}
 
       <style>{`
         @keyframes exclusiveCtaPulse {
