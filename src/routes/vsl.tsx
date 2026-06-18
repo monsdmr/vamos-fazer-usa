@@ -3,16 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { Lock, ShieldCheck, ArrowDown } from "lucide-react";
 
 import { FlagUS } from "../components/Flag";
-import { useVturbWatchTime } from "../hooks/useVturbWatchTime";
 
-// Time in seconds when the pitch begins and the CTA unlocks
-// Reveal CTA 35s earlier than the original pitch moment (20:20 → 19:45).
-// Math.max guards against negative values if the offset is ever changed.
-// CTA reveals exactly at the pitch moment (21:45).
-const PITCH_REVEAL_SECONDS = Math.max(0, 21 * 60 + 45); // 21:45
 const PLAYER_ID = "69f140ee2e62e594e34723cd";
 const PLAYER_ELEMENT_ID = `ab-${PLAYER_ID}`;
-const PLAYER_VARIATION_IDS = [PLAYER_ELEMENT_ID, PLAYER_ID];
+const PLAYER_SRC =
+  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
 
 // Allow the custom element <vturb-smartplayer> in TSX
 declare module "react" {
@@ -48,7 +43,7 @@ export const Route = createFileRoute("/vsl")({
     links: [
       {
         rel: "preload",
-        href: "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js",
+        href: PLAYER_SRC,
         as: "script",
         fetchPriority: "high",
       },
@@ -74,49 +69,7 @@ export const Route = createFileRoute("/vsl")({
   component: VslPage,
 });
 
-const PLAYER_SRC =
-  "https://scripts.converteai.net/3d3e08e7-4c37-4616-b881-330803f7b01c/ab-test/69f140ee2e62e594e34723cd/player.js";
-
-// Page-time fallback: if for any reason the player time-tracking fails
-// (player error, user reload past pitch moment, autoplay blocked, etc.),
-// unlock the CTA after this many seconds on the page so the funnel never
-// dead-ends. Set slightly below the pitch moment so it's a true safety net.
-const PAGE_TIME_FALLBACK_SECONDS = 21 * 60 + 50; // 21:50 — pitch moment
-
 function VslPage() {
-  const watchedTimeUnlocked = useVturbWatchTime(PLAYER_VARIATION_IDS, PITCH_REVEAL_SECONDS);
-
-  // Page-time fallback unlock — silent (no visible counter)
-  const [pageTimeUnlocked, setPageTimeUnlocked] = useState(false);
-  useEffect(() => {
-    const t = window.setTimeout(
-      () => setPageTimeUnlocked(true),
-      PAGE_TIME_FALLBACK_SECONDS * 1000,
-    );
-    return () => window.clearTimeout(t);
-  }, []);
-
-  // Debug-only bypass: ?debug_unlock=1 reveals the CTA immediately, but ONLY
-  // in non-production environments (localhost or lovable preview/sandbox hosts).
-  // In production this flag is ignored so users can't skip the video.
-  const [debugUnlocked, setDebugUnlocked] = useState(false);
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("debug_unlock") !== "1") return;
-      const host = window.location.hostname;
-      const isDev =
-        host === "localhost" ||
-        host === "127.0.0.1" ||
-        host.endsWith(".lovable.app") ||
-        host.endsWith(".lovableproject.com") ||
-        host.endsWith(".lovableproject.dev") ||
-        host.endsWith(".lovable.dev");
-      if (isDev) setDebugUnlocked(true);
-    } catch {}
-  }, []);
-
-  const ctaUnlocked = watchedTimeUnlocked || pageTimeUnlocked || debugUnlocked;
   const [checkoutUrl, setCheckoutUrl] = useState(
     "https://www.checkout-ds24.com/product/687076",
   );
@@ -129,32 +82,17 @@ function VslPage() {
       setLeadAmount(sessionStorage.getItem("lead_amount_formatted") || "");
     } catch {}
   }, []);
-  // Loading state for the checkout CTA — prevents double-click while the
-  // dataLayer push is processing and the redirect is in flight.
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  // Sticky CTA: shows a fixed bottom bar when the inline CTA is scrolled
-  // off-screen, so the user never loses sight of the button after unlock.
-  const inlineCtaRef = useRef<HTMLDivElement | null>(null);
-  const [showStickyCta, setShowStickyCta] = useState(false);
-  useEffect(() => {
-    if (!ctaUnlocked) {
-      setShowStickyCta(false);
-      return;
-    }
-    const target = inlineCtaRef.current;
-    if (!target || typeof IntersectionObserver === "undefined") return;
-    const obs = new IntersectionObserver(
-      ([entry]) => setShowStickyCta(!entry.isIntersecting),
-      { rootMargin: "0px 0px -40px 0px", threshold: 0 },
-    );
-    obs.observe(target);
-    return () => obs.disconnect();
-  }, [ctaUnlocked]);
+  // Loading state for the checkout CTA — prevents double-fire of the
+  // dataLayer push while the redirect is in flight.
+  const isCheckingOutRef = useRef(false);
 
-  const handleBeginCheckout = () => {
-    if (isCheckingOut) return false;
-    setIsCheckingOut(true);
+  // Stable handler kept in a ref so the click-listener attached to the
+  // shadow-DOM anchor always reads the freshest closure without us having
+  // to detach/reattach (which is what caused the duplicate-event bug).
+  const handleBeginCheckoutRef = useRef(() => {
+    if (isCheckingOutRef.current) return false;
+    isCheckingOutRef.current = true;
     try {
       const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
       w.dataLayer = w.dataLayer || [];
@@ -165,23 +103,28 @@ function VslPage() {
         lead_state: sessionStorage.getItem("lead_state") || "",
       });
     } catch {}
-    window.setTimeout(() => setIsCheckingOut(false), 4000);
+    window.setTimeout(() => {
+      isCheckingOutRef.current = false;
+    }, 4000);
     return true;
-  };
+  });
+
+  // Latest checkout URL kept in a ref so the click-listener can read it
+  // without us re-running the patch effect (which would re-attach listeners).
+  const checkoutUrlRef = useRef(checkoutUrl);
+  useEffect(() => {
+    checkoutUrlRef.current = checkoutUrl;
+  }, [checkoutUrl]);
 
   // Build the Digistore checkout URL.
   // - sid1 is set from the click_id captured on page 1 (fbclid / ttclid)
   //   so Digistore postbacks can attribute the sale to the correct ad click.
   // - Forwards marketing params (utm_*, fbclid, gclid, ttclid, msclkid, etc.)
-  //   so Tag Manager and pixel events keep working.
   // - Prefills first_name / last_name from the Full Name entered on page 1.
-  // The Referer header itself is stripped (meta name="referrer" + rel="noreferrer"),
-  // so Digistore cannot see the originating domain.
   useEffect(() => {
     try {
       const url = new URL("https://www.checkout-ds24.com/product/687076");
 
-      // 1) Set sid1 from click_id stored on page 1 (fbclid || ttclid).
       let clickId = "";
       try {
         clickId = sessionStorage.getItem("click_id") || "";
@@ -194,8 +137,6 @@ function VslPage() {
         url.searchParams.set("sid1", clickId);
       }
 
-      // 2) Forward tracking params from the current URL (and persist them so
-      // they survive internal navigation between / and /vsl).
       const TRACKING_KEYS = [
         "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
         "utm_id", "fbclid", "gclid", "ttclid", "msclkid", "twclid", "li_fat_id",
@@ -217,7 +158,6 @@ function VslPage() {
         sessionStorage.setItem("oc_tracking", JSON.stringify(stored));
       } catch {}
 
-      // 3) Prefill first_name / last_name from the home form.
       const fullName = (
         sessionStorage.getItem("lead_name") ||
         sessionStorage.getItem("oc_full_name") ||
@@ -236,11 +176,8 @@ function VslPage() {
   }, []);
 
   // Inject the VTurb player script on the client AFTER the custom element is in the DOM.
-  // Doing this in head.scripts (SSR) breaks on preview refresh / HMR because the script
-  // runs once globally and re-mounts of <vturb-smartplayer> end up orphaned.
   useEffect(() => {
     const ID = "vturb-player-script";
-    // If already injected (HMR / fast-refresh), force a re-init by removing it first.
     const existing = document.getElementById(ID);
     if (existing) existing.remove();
 
@@ -252,13 +189,11 @@ function VslPage() {
   }, []);
 
   // Rewrite the VTurb player's built-in CTA button so it points to our
-  // tracked checkout URL (sid1 + utm_* + first_name/last_name) and fires
-  // the begin_checkout dataLayer event on click. The button lives inside
-  // the smartplayer's shadow DOM, so we poll/observe until it appears and
-  // patch every matching <a>. Re-applied whenever the URL is rebuilt.
+  // tracked checkout URL and fires begin_checkout on click. Runs ONCE —
+  // the listener reads the latest URL/handler through refs, so we never
+  // re-attach (which previously caused duplicate begin_checkout events).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!checkoutUrl) return;
 
     let cancelled = false;
     const patched = new WeakSet<HTMLAnchorElement>();
@@ -279,18 +214,16 @@ function VslPage() {
     const patchAnchor = (a: HTMLAnchorElement) => {
       if (patched.has(a)) return;
       const href = a.getAttribute("href") || "";
-      // Only patch the Digistore CTA — leave any other links alone.
       if (!/checkout-ds24\.com|digistore24/i.test(href)) return;
       patched.add(a);
-      a.href = checkoutUrl;
+      a.href = checkoutUrlRef.current;
       a.target = "_self";
       a.rel = "noopener noreferrer";
       a.addEventListener(
         "click",
         () => {
-          // Refresh href in case tracking changed late, then fire event.
-          a.href = checkoutUrl;
-          handleBeginCheckout();
+          a.href = checkoutUrlRef.current;
+          handleBeginCheckoutRef.current();
         },
         { capture: true },
       );
@@ -313,10 +246,7 @@ function VslPage() {
       window.clearInterval(interval);
       window.clearTimeout(initial);
     };
-    // handleBeginCheckout is intentionally omitted — it's stable enough and
-    // including it would re-run this effect on every keystroke of state.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkoutUrl]);
+  }, []);
 
   return (
     <div
@@ -386,8 +316,6 @@ function VslPage() {
           ></vturb-smartplayer>
         </div>
 
-        {/* CTA disabled — using VTurb player's built-in button instead */}
-
         {/* Microcopy */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
           <span className="flex items-center gap-1">
@@ -397,7 +325,6 @@ function VslPage() {
             <ShieldCheck className="h-3 w-3" /> Watch full video to unlock instructions
           </span>
         </div>
-
       </main>
 
       {/* Footer */}
@@ -421,79 +348,6 @@ function VslPage() {
           </p>
         </div>
       </footer>
-
-      {/* Sticky CTA disabled — using VTurb player's built-in button instead */}
-
-      <style>{`
-        @keyframes exclusiveCtaPulse {
-          0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 10px 30px -8px rgba(245, 180, 90, 0.55), 0 0 0 0 rgba(245, 180, 90, 0.6);
-          }
-          50% {
-            transform: scale(1.04);
-            box-shadow: 0 14px 36px -8px rgba(245, 180, 90, 0.75), 0 0 0 14px rgba(245, 180, 90, 0);
-          }
-        }
-        .exclusive-cta {
-          animation: exclusiveCtaPulse 1.8s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .exclusive-cta { animation: none; }
-        }
-      `}</style>
     </div>
-  );
-}
-
-function CtaButton({
-  checkoutUrl,
-  isCheckingOut,
-  onBeginCheckout,
-  compact = false,
-}: {
-  checkoutUrl: string;
-  isCheckingOut: boolean;
-  onBeginCheckout: () => boolean;
-  compact?: boolean;
-}) {
-  return (
-    <a
-      href={checkoutUrl}
-      rel="noopener"
-      referrerPolicy="no-referrer"
-      aria-disabled={isCheckingOut}
-      tabIndex={isCheckingOut ? -1 : 0}
-      onClick={(e) => {
-        if (isCheckingOut) {
-          e.preventDefault();
-          return;
-        }
-        onBeginCheckout();
-      }}
-      aria-label="Exclusive offer — only now"
-      className={`exclusive-cta group relative inline-flex w-full max-w-md items-center justify-center overflow-hidden rounded-full text-center font-extrabold uppercase tracking-wide text-[#1a2332] shadow-[0_10px_30px_-8px_rgba(245,180,90,0.55)] transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] ${
-        compact ? "px-6 py-3.5 text-sm sm:text-base" : "px-8 py-5 text-base sm:text-lg"
-      } ${isCheckingOut ? "pointer-events-none opacity-80" : ""}`}
-      style={{
-        background: "linear-gradient(180deg, #f8c97a 0%, #f0a94a 100%)",
-      }}
-    >
-      <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-      <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-sm">
-        {isCheckingOut ? (
-          <>
-            <span
-              className="h-5 w-5 animate-spin rounded-full border-[2.5px] border-[#1a2332]/30 border-t-[#1a2332]"
-              role="status"
-              aria-label="Processing"
-            />
-            PROCESSING…
-          </>
-        ) : (
-          "EXCLUSIVE OFFER! ONLY NOW"
-        )}
-      </span>
-    </a>
   );
 }
