@@ -197,6 +197,32 @@ function VslPage() {
 
     let cancelled = false;
     const patched = new WeakSet<HTMLAnchorElement>();
+    const observedRoots = new WeakSet<ShadowRoot>();
+    const observers: MutationObserver[] = [];
+
+    const patchAnchor = (a: HTMLAnchorElement) => {
+      if (patched.has(a)) return;
+      const href = a.getAttribute("href") || "";
+      if (!/checkout-ds24\.com|digistore24/i.test(href)) return;
+      patched.add(a);
+      a.href = checkoutUrlRef.current;
+      a.target = "_self";
+      a.rel = "noopener noreferrer";
+      a.addEventListener(
+        "click",
+        (e) => {
+          // Force tracked URL + same-tab nav; block any VTurb handler
+          // that would call window.open(originalHref, "_blank").
+          e.preventDefault();
+          e.stopPropagation();
+          const url = checkoutUrlRef.current;
+          a.href = url;
+          handleBeginCheckoutRef.current();
+          window.location.href = url;
+        },
+        { capture: true },
+      );
+    };
 
     const collectAnchors = (root: ShadowRoot | Document | Element): HTMLAnchorElement[] => {
       const out: HTMLAnchorElement[] = [];
@@ -211,40 +237,53 @@ function VslPage() {
       return out;
     };
 
-    const patchAnchor = (a: HTMLAnchorElement) => {
-      if (patched.has(a)) return;
-      const href = a.getAttribute("href") || "";
-      if (!/checkout-ds24\.com|digistore24/i.test(href)) return;
-      patched.add(a);
-      a.href = checkoutUrlRef.current;
-      a.target = "_self";
-      a.rel = "noopener noreferrer";
-      a.addEventListener(
-        "click",
-        () => {
-          a.href = checkoutUrlRef.current;
-          handleBeginCheckoutRef.current();
-        },
-        { capture: true },
-      );
+    const observeRoot = (root: ShadowRoot) => {
+      if (observedRoots.has(root)) return;
+      observedRoots.add(root);
+      const obs = new MutationObserver(() => {
+        if (cancelled) return;
+        collectAnchors(root).forEach(patchAnchor);
+        root.querySelectorAll("*").forEach((el) => {
+          const sr = (el as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
+          if (sr) observeRoot(sr);
+        });
+      });
+      obs.observe(root, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["href"],
+      });
+      observers.push(obs);
     };
 
-    const scan = () => {
-      if (cancelled) return;
+    const scan = (): boolean => {
+      if (cancelled) return false;
       const host = document.getElementById(PLAYER_ELEMENT_ID);
-      if (!host) return;
+      if (!host) return false;
       const sr = (host as Element & { shadowRoot?: ShadowRoot | null }).shadowRoot;
-      if (sr) collectAnchors(sr).forEach(patchAnchor);
+      if (sr) {
+        observeRoot(sr);
+        collectAnchors(sr).forEach(patchAnchor);
+      }
       collectAnchors(host).forEach(patchAnchor);
+      return !!sr;
     };
 
-    const interval = window.setInterval(scan, 600);
-    const initial = window.setTimeout(scan, 300);
+    // Patch immediately, then poll briefly until shadowRoot exists.
+    // After that, MutationObserver handles every re-render instantly.
+    scan();
+    let attempts = 0;
+    const interval = window.setInterval(() => {
+      attempts++;
+      const ok = scan();
+      if (ok || attempts > 60) window.clearInterval(interval);
+    }, 200);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
-      window.clearTimeout(initial);
+      observers.forEach((o) => o.disconnect());
     };
   }, []);
 
